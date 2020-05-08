@@ -15,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:divider="#fff"
         android:orientation="horizontal"
         android:stackFromBottom="true">
 
@@ -39,10 +38,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:ems="10"
+            android:inputType="textMultiLine"
             android:hint="@string/write_a_message"
-            android:inputType="text"
             android:paddingHorizontal="10dp"
             android:text=""
+            android:lines="2"
             android:importantForAutofill="no" />
 
         <ImageButton

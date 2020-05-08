@@ -21,17 +21,18 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:orientation="vertical"
             android:focusable="true"
             android:focusableInTouchMode="true">
+
             <EditText
                 android:id="@+id/EditText_NikName"
                 style="@style/EditText"
                 android:hint="@string/edittext_nikname"
                 android:importantForAutofill="no"
-                tools:ignore="TextFields">
-            </EditText>
+                android:inputType="text"
+                tools:ignore="TextFields" />
             <EditText
                 android:id="@+id/EditText_Password"
                 style="@style/EditText"

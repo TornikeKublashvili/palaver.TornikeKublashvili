@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         sharedPreferences = getSharedPreferences("MySharedPreferences", MODE_PRIVATE);
-
         if (sharedPreferences.getBoolean("IsLoggedIn", false)) {
             Intent intent = new Intent(MainActivity.this, ContactList.class);
             startActivity(intent);

@@ -1,6 +1,7 @@
 package com.example.palaver;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.view.Gravity;
 import android.widget.TextView;
 
@@ -21,5 +22,10 @@ class Info {
             v.setTextColor(ContextCompat.getColor(context, R.color.green));
         }
         toast.show();
+    }
+
+    static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
     }
 }

@@ -65,27 +65,33 @@ public class AddOrRemoveContact extends AppCompatActivity {
                     Info.show(AddOrRemoveContact.this, getString(R.string.nikName_is_empty), Info.Color.Red);
                 }
                 else{
-                    try{
-                        JSONObject json = new JSONObject();
-                        json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
-                        json.put("Password",  MainActivity.sharedPreferences.getString("Password", ""));
-                        json.put("Friend", friendsNikName);
+                    if (Info.isNetworkAvailable(AddOrRemoveContact.this)) {
+                        try{
+                            JSONObject json = new JSONObject();
+                            json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
+                            json.put("Password",  MainActivity.sharedPreferences.getString("Password", ""));
+                            json.put("Friend", friendsNikName);
 
-                        JSONObject response = new NetworkHelper().execute("api/friends/add", json.toString()).get();
+                            JSONObject response = new NetworkHelper().execute("api/friends/add", json.toString()).get();
 
-                        if(response.getInt("MsgType")==0){
-                            Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Red);
+                            if(response.getInt("MsgType")==0){
+                                Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Red);
+                            }
+                            else if(response.getInt("MsgType")==1){
+                                Set<String> contactList = new HashSet<>(MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>()));
+                                contactList.add(friendsNikName);
+                                MainActivity.sharedPreferences.edit().putStringSet("ContactList", contactList).apply();
+                                editTextFriend.setText("");
+                                Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Green);
+                            }
                         }
-                        else if(response.getInt("MsgType")==1){
-                            Set<String> contactList = new HashSet<>(MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>()));
-                            contactList.add(friendsNikName);
-                            MainActivity.sharedPreferences.edit().putStringSet("ContactList", contactList).apply();
-                            editTextFriend.setText("");
-                            Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Green);
+                        catch(Exception e){
+                            Info.show(AddOrRemoveContact.this, e.getMessage(), Info.Color.Red);
+                            Log.d("LOG_AddOrRemoveContact", e.toString());
                         }
-                    }
-                    catch(Exception e){
-                        Log.d("LOG_AddContact", e.toString());
+                    }else {
+                        Info.show(AddOrRemoveContact.this, getString(R.string.no_internet_connection), Info.Color.Red);
+                        Log.d("LOG_AddOrRemoveContact", getString(R.string.no_internet_connection));
                     }
                 }
             }
@@ -97,28 +103,33 @@ public class AddOrRemoveContact extends AppCompatActivity {
                 if(friendsNikName.length() < 1){
                     Info.show(AddOrRemoveContact.this, getString(R.string.nikName_is_empty), Info.Color.Red);
                 }
-                else{
-                    try{
-                        JSONObject json = new JSONObject();
-                        json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
-                        json.put("Password",  MainActivity.sharedPreferences.getString("Password", ""));
-                        json.put("Friend", friendsNikName);
+                else {
+                    if (Info.isNetworkAvailable(AddOrRemoveContact.this)) {
+                        try {
+                            JSONObject json = new JSONObject();
+                            json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
+                            json.put("Password", MainActivity.sharedPreferences.getString("Password", ""));
+                            json.put("Friend", friendsNikName);
 
-                        JSONObject response = new NetworkHelper().execute("api/friends/remove", json.toString()).get();
+                            JSONObject response = new NetworkHelper().execute("api/friends/remove", json.toString()).get();
 
-                        if(response.getInt("MsgType")==0){
-                            Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Red);
+                            if (response.getInt("MsgType") == 0) {
+                                Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Red);
+                            } else if (response.getInt("MsgType") == 1) {
+                                Set<String> contactList = new HashSet<>(MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>()));
+                                contactList.remove(friendsNikName);
+                                MainActivity.sharedPreferences.edit().putStringSet("ContactList", contactList).apply();
+                                editTextFriend.setText("");
+                                Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Green);
+                            }
                         }
-                        else if(response.getInt("MsgType")==1){
-                            Set<String> contactList = new HashSet<>(MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>()));
-                            contactList.remove(friendsNikName);
-                            MainActivity.sharedPreferences.edit().putStringSet("ContactList", contactList).apply();
-                            editTextFriend.setText("");
-                            Info.show(AddOrRemoveContact.this, response.getString("Info"), Info.Color.Green);
+                        catch(Exception e){
+                            Info.show(AddOrRemoveContact.this, e.getMessage(), Info.Color.Red);
+                            Log.d("LOG_AddOrRemoveContact", e.toString());
                         }
-                    }
-                    catch(Exception e){
-                        Log.d("LOG_AddContact", e.toString());
+                    }else {
+                        Info.show(AddOrRemoveContact.this, getString(R.string.no_internet_connection), Info.Color.Red);
+                        Log.d("LOG_AddOrRemoveContact", getString(R.string.no_internet_connection));
                     }
                 }
             }

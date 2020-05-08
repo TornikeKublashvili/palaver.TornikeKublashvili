@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Palaver</string>
+    <string name="button_login">Einloggen</string>
+    <string name="button_register">Registrieren</string>
+    <string name="textview_register">Registrieren</string>
+    <string name="textview_login">Einloggen</string>
+    <string name="edittext_nikname">Nikname</string>
+    <string name="edittext_password">Passwort</string>
+    <string name="edittext_password_confirm">Passwort bestätigen</string>
+
+    <string name="nikName_is_empty">Nikname darf nicht leer sein!</string>
+    <string name="password_is_empty">Passwort darf nich Leer sein!</string>
+    <string name="please_confirm_password">Bitte bestätigen Sie Ihr Passwort!</string>
+    <string name="password_not_long_enough">Ihr Passwort muss mindestens 6 Zeichen lang Sein!</string>
+    <string name="please_log_in">Bitte melden Sie sich an!</string>
+    <string name="log_out">Ausloggen</string>
+    <string name="change_password">Passwort ändern</string>
+
+    <string name="contact_list">Meine Kontakte</string>
+    <string name="add_remove_contact">Kontakt hinzufügen/löshen</string>
+    <string name="button_change_password">Passwort ändern</string>
+    <string name="edittext_old_password">Altes Passwort</string>
+    <string name="edittext_new_password_confirm">Neues Passwort bestätigen</string>
+    <string name="edittext_new_password">Neues Passwort</string>
+    <string name="button_add_frend">Kontakt hinzufügen</string>
+    <string name="button_remove_frend">Kontakt Löschen</string>
+    <string name="write_a_message">Write a message</string>
+</resources>

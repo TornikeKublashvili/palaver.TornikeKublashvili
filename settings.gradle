@@ -1,0 +1,2 @@
+rootProject.name='Palaver'
+include ':app'

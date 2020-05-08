@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="50dp"
+    tools:ignore="RtlHardcoded">
+    <TextView
+        android:id="@+id/TextView_Message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/frieds_message"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="5dp"
+        android:layout_marginTop="10dp"
+        android:textSize="14dp"
+        android:text=""
+        tools:ignore="HardcodedText,SpUsage" />
+</LinearLayout>

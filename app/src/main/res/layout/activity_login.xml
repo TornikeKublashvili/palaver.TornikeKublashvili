@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.palaver.Login"
+    android:orientation="vertical"
+    android:background="@drawable/background"
+    android:id="@+id/ConstraintLayout">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:ignore="UselessLeaf">
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+            <EditText
+                android:id="@+id/EditText_NikName"
+                style="@style/EditText"
+                android:hint="@string/edittext_nikname"
+                android:importantForAutofill="no"
+                tools:ignore="TextFields">
+            </EditText>
+            <EditText
+                android:id="@+id/EditText_Password"
+                style="@style/EditText"
+                android:hint="@string/edittext_password"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                tools:ignore="TextFields">
+            </EditText>
+            <Button
+                android:id="@+id/Button_LogIn"
+                style="@style/LogIn_Register"
+                android:text="@string/button_login"
+                android:backgroundTint="@color/colorPrimaryDark"
+                tools:ignore="UnusedAttribute">
+            </Button>
+            <TextView
+                android:id="@+id/TextView_Register"
+                style="@style/LogIn_Register"
+                android:layout_marginTop="10dp"
+                android:text="@string/textview_register">
+            </TextView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

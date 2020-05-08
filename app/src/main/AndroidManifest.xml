@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.palaver">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="fabian.de.palaver.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permision.SEND" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="AllowBackup">
+        <activity android:name=".ActivityChat"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".AddOrRemoveContact"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".ChangePassword"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".ContactList"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".Register"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".Login"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/SplashScreenTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

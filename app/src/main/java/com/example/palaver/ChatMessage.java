@@ -5,13 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class ChatMessage {
+class ChatMessage {
     private String sneder;
     private String recipient;
     private String date;
     private String text;
     private String mimetype;
-
 
     ChatMessage(String sender, String recipient, Date date, String mimetype, String text){
         this.sneder = sender;

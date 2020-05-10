@@ -87,47 +87,47 @@ public class Register extends AppCompatActivity {
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(Info.isNetworkAvailable(Register.this)){
-                    if (nikName.length() >= 1) {
-                        if(password.length() < 1){
-                            Info.show(Register.this, getString(R.string.password_is_empty), Info.Color.Red);
-                        }
-                        else if(password.length() < 6){
-                            Info.show(Register.this, getString(R.string.password_not_long_enough), Info.Color.Red);
-                        }
-                        else if (!password.equals(passwordConfirm)) {
-                            Info.show(Register.this, getString(R.string.please_confirm_password), Info.Color.Red);
-                        }
-                        else{
-                            try{
-                                JSONObject json = new JSONObject();
-                                json.put("Username", nikName);
-                                json.put("Password", password);
-
-                                JSONObject response = new NetworkHelper().execute("api/user/register", json.toString()).get();
-
-                                if(response.getInt("MsgType") == 0){
-                                    Info.show(Register.this, response.getString("Info"), Info.Color.Red);
-                                }
-                                else{
-                                    Info.show(Register.this, response.getString("Info") + " " + getString(R.string.please_log_in), Info.Color.Green);
-                                    Intent intent = new Intent(Register.this, Login.class);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            }
-                            catch(Exception e){
-                                Log.d("LOG_Register", e.toString());
-                            }
-                        }
-                    } else {
-                        Info.show(Register.this, getString(R.string.nikName_is_empty), Info.Color.Red);
+            if(Info.isNetworkAvailable(Register.this)){
+                if (nikName.length() >= 1) {
+                    if(password.length() < 1){
+                        Info.show(Register.this, getString(R.string.password_is_empty), Info.Color.Red);
                     }
+                    else if(password.length() < 6){
+                        Info.show(Register.this, getString(R.string.password_not_long_enough), Info.Color.Red);
+                    }
+                    else if (!password.equals(passwordConfirm)) {
+                        Info.show(Register.this, getString(R.string.please_confirm_password), Info.Color.Red);
+                    }
+                    else{
+                        try{
+                            JSONObject json = new JSONObject();
+                            json.put("Username", nikName);
+                            json.put("Password", password);
+
+                            JSONObject response = new NetworkHelper().execute("api/user/register", json.toString()).get();
+
+                            if(response.getInt("MsgType") == 0){
+                                Info.show(Register.this, response.getString("Info"), Info.Color.Red);
+                            }
+                            else{
+                                Info.show(Register.this, response.getString("Info") + " " + getString(R.string.please_log_in), Info.Color.Green);
+                                Intent intent = new Intent(Register.this, Login.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+                        catch(Exception e){
+                            Log.d("LOG_Register", e.toString());
+                        }
+                    }
+                } else {
+                    Info.show(Register.this, getString(R.string.nikName_is_empty), Info.Color.Red);
                 }
-                else{
-                    Info.show(Register.this, getString(R.string.no_internet_connection), Info.Color.Red);
-                    Log.d("LOG_Register", "no internet connection");
-                }
+            }
+            else{
+                Info.show(Register.this, getString(R.string.no_internet_connection), Info.Color.Red);
+                Log.d("LOG_Register", "no internet connection");
+            }
             }
         });
 

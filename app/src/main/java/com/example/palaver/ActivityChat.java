@@ -128,6 +128,7 @@ public class ActivityChat extends AppCompatActivity {
             Log.d("LOG_ActivityChat", "no internet connection");
         }
     }
+
     private void getChatHistory() {
         try {
             JSONObject json = new JSONObject();

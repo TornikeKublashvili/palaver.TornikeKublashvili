@@ -2,6 +2,7 @@ package com.example.palaver;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -10,16 +11,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ContactList extends AppCompatActivity {
+    private AddContact addContact;
+    private RemoveContact removeContact;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,14 +35,42 @@ public class ContactList extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume(){
+    public void onResume(){
         super.onResume();
 
+        if(Info.isNetworkAvailable(ContactList.this)){
+            refreschContactList();
+        }
         LinearLayout linearLayoutContactList = findViewById(R.id.LinearLayout_ContactList);
         addFriends(linearLayoutContactList);
     }
 
-    private void addFriends(LinearLayout linearLayout){
+    private void refreschContactList(){
+        try{
+            JSONObject json = new JSONObject();
+            json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
+            json.put("Password",  MainActivity.sharedPreferences.getString("Password", ""));
+
+            JSONObject response = new NetworkHelper().execute("api/friends/get", json.toString()).get();
+
+            if(response.getInt("MsgType")==0){
+                Info.show(ContactList.this, response.getString("Info"), Info.Color.Red);
+            }
+            else if(response.getInt("MsgType")==1){
+                JSONArray jarray = response.getJSONArray("Data");
+                HashSet<String> contacts = new HashSet<>();
+                for (int i = 0; i < jarray.length(); i++) {
+                    contacts.add(jarray.getString(i));
+                }
+                MainActivity.sharedPreferences.edit().putStringSet("ContactList", contacts).apply();
+            }
+        }
+        catch(Exception e){
+            Log.d("LOG_AddOrRemoveContact", e.toString());
+        }
+    }
+
+    public void addFriends(LinearLayout linearLayout){
         Set<String> contactListSet = MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>());
         assert contactListSet != null;
         ArrayList<String> contactListList = new ArrayList(contactListSet);
@@ -63,6 +95,22 @@ public class ContactList extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
+
+                textView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        removeContact = new RemoveContact();
+                        Bundle args = new Bundle();
+                        args.putString("contact", textView.getText().toString());
+                        removeContact.setArguments(args);
+                        removeContact.show(getFragmentManager(), textView.getText().toString());
+
+/*
+                    removeFriend(textView.getText().toString());
+*/
+                        return true;
+                    }
+                });
             }
         }
     }
@@ -72,11 +120,6 @@ public class ContactList extends AppCompatActivity {
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.options_menu,menu);
         return super.onCreateOptionsMenu(menu);
-    }
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.Button_Back).setVisible(false);
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -92,7 +135,11 @@ public class ContactList extends AppCompatActivity {
             startActivity(intent);
         }
         else if(item.getItemId()==R.id.Button_Add_Contact){
-            Intent intent = new Intent(ContactList.this, AddOrRemoveContact.class);
+            addContact = new AddContact();
+            addContact.show(getFragmentManager(), "");
+        }
+        else if(item.getItemId()== R.id.App_Version){
+            Intent intent = new Intent(ContactList.this, Version.class);
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);

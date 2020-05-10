@@ -135,6 +135,7 @@ public class ChangePassword extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.Change_Password).setVisible(false);
+        menu.findItem(R.id.Button_Add_Contact).setVisible(false);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -148,13 +149,6 @@ public class ChangePassword extends AppCompatActivity {
         else if(item.getItemId()==R.id.Change_Password){
             Intent intent = new Intent(ChangePassword.this, ChangePassword.class);
             startActivity(intent);
-        }
-        else if(item.getItemId()==R.id.Button_Add_Contact){
-            Intent intent = new Intent(ChangePassword.this, AddOrRemoveContact.class);
-            startActivity(intent);
-        }
-        else if(item.getItemId()==R.id.Button_Back){
-            onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }

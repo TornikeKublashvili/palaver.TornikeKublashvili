@@ -65,7 +65,6 @@ public class ContactList extends AppCompatActivity {
                 });
             }
         }
-
     }
 
     @Override

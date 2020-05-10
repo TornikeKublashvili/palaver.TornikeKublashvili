@@ -26,4 +26,5 @@
     <string name="button_remove_frend">Kontakt Löschen</string>
     <string name="write_a_message">Write a message</string>
     <string name="no_internet_connection">Kein Internet!</string>
+    <string name="palaver">Palaver</string>
 </resources>

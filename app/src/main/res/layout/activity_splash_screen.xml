@@ -13,9 +13,9 @@
         style="@style/Base.Animation.AppCompat.Dialog"
         android:layout_width="match_parent"
         android:layout_height="697dp"
-        android:backgroundTintMode="src_in"
+
         android:gravity="center"
-        android:text="Palaver"
+        android:text="@string/palaver"
         android:textColor="@android:color/holo_blue_dark"
         android:textSize="50sp"
         android:textStyle="bold"

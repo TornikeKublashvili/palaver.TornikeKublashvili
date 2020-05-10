@@ -6,14 +6,10 @@
     android:background="@drawable/splash_screen_background"
     tools:context=".MainActivity">
 
-
     <TextView
-
-
         style="@style/Base.Animation.AppCompat.Dialog"
         android:layout_width="match_parent"
-        android:layout_height="697dp"
-
+        android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/palaver"
         android:textColor="@android:color/holo_blue_dark"
@@ -25,8 +21,6 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible">
-
     </TextView>
-
 
 </RelativeLayout>

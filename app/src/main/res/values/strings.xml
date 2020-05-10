@@ -26,15 +26,4 @@
     <string name="button_remove_frend">Kontakt Löschen</string>
     <string name="write_a_message">Write a message</string>
     <string name="no_internet_connection">Kein Internet!</string>
-    <string name="TextView_AddContact">Gib den Namen eines Palaver-Nutzers ein, um diesen hinzuzufügen.</string>
-    <string name="EditText_AddContact">Kontaktname</string>
-    <string name="add_coontact">Kontakt hinzufügen</string>
-    <string name="cancel">Abbrechen</string>
-    <string name="add">Hinzufügen</string>
-    <string name="do_you_want_to_delete_contact">Möchtest du xxx von der Kontaktliste löschen?</string>
-    <string name="yes">Ja</string>
-    <string name="no">Nein</string>
-    <string name="AppVersion">App Version</string>
-
-
 </resources>

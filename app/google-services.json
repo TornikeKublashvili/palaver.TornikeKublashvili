@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "594324547505",
+    "firebase_url": "https://palaver-328fd.firebaseio.com",
+    "project_id": "palaver-328fd"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594324547505:android:616b2b2030a3fc61",
+        "android_client_info": {
+          "package_name": "de.uni_due.paluno.se.palaver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594324547505-f77s1pbl9ln7pu747e7iglpu0tbtjlm0.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "594324547505-la33siofq3dgbttlf1bvdmhv6h9sfpco.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "594324547505-la33siofq3dgbttlf1bvdmhv6h9sfpco.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-i6NkyHBNvUPC3YIH34OIKug-1Qxv3Ls"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

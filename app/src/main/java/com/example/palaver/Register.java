@@ -37,6 +37,7 @@ public class Register extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+                assert inputMethodManager != null;
                 inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });

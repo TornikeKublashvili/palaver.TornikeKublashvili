@@ -7,7 +7,6 @@
         app:showAsAction="ifRoom|collapseActionView"
         android:title="TODO"
         tools:ignore="HardcodedText" />
-
     <item
         android:id="@+id/Log_Out"
         android:title="@string/log_out" />

@@ -1,15 +1,10 @@
 package com.example.palaver;
 
-import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
-import android.widget.TextView;
-
-import androidx.core.content.ContextCompat;
 
 public class GcmListenerService extends com.google.android.gms.gcm.GcmListenerService {
     @Override

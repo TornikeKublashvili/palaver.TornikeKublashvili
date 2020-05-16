@@ -1,5 +1,6 @@
 package com.example.palaver;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,11 +21,12 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
         this.context = context;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
         LayoutInflater inflater = LayoutInflater.from(context);
-        ChatMessage message = chatMessages.get(position);
+        final ChatMessage message = chatMessages.get(position);
         View rowView;
 
         if(message.getSender().equals(MainActivity.sharedPreferences.getString("NikName",""))){
@@ -33,8 +35,14 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
         else{
             rowView = inflater.inflate(R.layout.friends_message, parent, false);
         }
-        TextView dateTextView =  rowView.findViewById(R.id.TextView_Message);
-        dateTextView.setText(message.getText());
+        final TextView dateTextView =  rowView.findViewById(R.id.TextView_Message);
+        if(message.getMimetype().equals("text/plain")){
+            dateTextView.setText(message.getText());
+        }
+        else if(message.getMimetype().equals("location/plain")){
+            //TODO hardcoded String [Location von] must be defined in strings.xml
+            dateTextView.setText("Location von"+ message.getSender() + "\n" + message.getDate());
+        }
         return rowView;
     }
 

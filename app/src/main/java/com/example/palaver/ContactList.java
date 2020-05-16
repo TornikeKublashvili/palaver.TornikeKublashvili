@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ContactList extends AppCompatActivity {
-    private AddContact addContact;
     private RemoveContact removeContact;
 
     @Override
@@ -72,7 +71,6 @@ public class ContactList extends AppCompatActivity {
 
     public void addFriends(LinearLayout linearLayout){
         Set<String> contactListSet = MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>());
-        assert contactListSet != null;
         ArrayList<String> contactListList = new ArrayList(contactListSet);
         Collections.sort(contactListList);
 
@@ -121,6 +119,10 @@ public class ContactList extends AppCompatActivity {
         inflater.inflate(R.menu.options_menu,menu);
         return super.onCreateOptionsMenu(menu);
     }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -135,7 +137,7 @@ public class ContactList extends AppCompatActivity {
             startActivity(intent);
         }
         else if(item.getItemId()==R.id.Button_Add_Contact){
-            addContact = new AddContact();
+            AddContact addContact = new AddContact();
             addContact.show(getFragmentManager(), "");
         }
         else if(item.getItemId()== R.id.App_Version){

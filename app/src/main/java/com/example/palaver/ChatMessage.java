@@ -21,6 +21,13 @@ class ChatMessage {
         this.mimetype = mimetype;
     }
 
+    ChatMessage(String sender, String recipient, String mimetype, String text){
+        this.sneder = sender;
+        this.recipient = recipient;
+        this.text = text;
+        this.mimetype = mimetype;
+    }
+
     String getSender() {
         return sneder;
     }

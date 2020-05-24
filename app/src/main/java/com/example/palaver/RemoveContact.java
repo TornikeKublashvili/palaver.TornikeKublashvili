@@ -68,7 +68,7 @@ public  class RemoveContact extends DialogFragment {
                 if (response.getInt("MsgType") == 0) {
                     Info.show(activity, response.getString("Info"), Info.Color.Red);
                 } else if (response.getInt("MsgType") == 1) {
-                    MainActivity.DB.removeFriend(friend);
+                    MainActivity.DB.removeFriend(MainActivity.nikName, friend);
                     Info.show(activity, response.getString("Info"), Info.Color.Green);
                     ((ContactList)getActivity()).onResume();
                 }

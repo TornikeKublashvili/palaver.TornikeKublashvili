@@ -63,7 +63,7 @@ public class ContactList extends AppCompatActivity {
             else if(response.getInt("MsgType")==1){
                 JSONArray jarray = response.getJSONArray("Data");
                 for (int i = 0; i < jarray.length(); i++) {
-                    MainActivity.DB.insertFriend(jarray.getString(i));
+                    MainActivity.DB.insertFriend(MainActivity.nikName, jarray.getString(i));
                 }
             }
         }
@@ -73,7 +73,7 @@ public class ContactList extends AppCompatActivity {
     }
 
     public void addFriends(LinearLayout linearLayout){
-        ArrayList<String> contactListList = MainActivity.DB.getFriends();
+        ArrayList<String> contactListList = MainActivity.DB.getFriends(MainActivity.nikName);
         Collections.sort(contactListList);
 
         if(linearLayout.getChildCount() > 0){

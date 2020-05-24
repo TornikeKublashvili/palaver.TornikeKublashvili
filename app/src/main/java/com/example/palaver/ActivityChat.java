@@ -222,8 +222,6 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
         cal.add(Calendar.DATE, -1);
         String date =  dateFormat.format(cal.getTime());
 
-  //      insertChatHistoriIntoDB(date);
-
         ArrayList<ChatMessage> messages = MainActivity.DB.getMessages(MainActivity.nikName + MainActivity.chatPartner, date);
         chatMessages.clear();
         chatMessages.addAll(messages);
@@ -274,13 +272,9 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void createImageBrowsingRequest() {
-        //checking for image browsing permissions
         if (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 22);
         } else {
-            //start image browsing
-            // creates and starts image browsing intent
-            // results will be handled in onActivityResult method
             Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(i, 1);
         }
@@ -319,7 +313,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
             else{
-                Info.show(ActivityChat.this, getString(R.string.error_while_login), Info.Color.Red);
+                Info.show(ActivityChat.this, getString(R.string.noInternetConnection), Info.Color.Red);
                 Log.d("LOG_ActivityChat", "no internet connection");
             }
         }

@@ -24,7 +24,7 @@ public class GcmListenerService extends com.google.android.gms.gcm.GcmListenerSe
 
             @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date d = new Date();
-            MainActivity.DB.insertUnreadMessages(bundle.getString("sender"), dateFormat.format(d));
+            MainActivity.DB.insertUnreadMessages(MainActivity.nikName, bundle.getString("sender"), dateFormat.format(d));
         } catch (Exception e) {
             Log.d("LOG_GcmListenerService", e.toString());
         }

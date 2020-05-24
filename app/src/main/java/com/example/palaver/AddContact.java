@@ -52,7 +52,7 @@ public class AddContact extends DialogFragment {
                             Info.show(activity, response.getString("Info"), Info.Color.Red);
                         }
                         else if(response.getInt("MsgType")==1){
-                            MainActivity.DB.insertFriend(friendsNikName);
+                            MainActivity.DB.insertFriend(MainActivity.nikName, friendsNikName);
                             Info.show(activity, response.getString("Info"), Info.Color.Green);
                             ((ContactList)getActivity()).onResume();                            }
                     }

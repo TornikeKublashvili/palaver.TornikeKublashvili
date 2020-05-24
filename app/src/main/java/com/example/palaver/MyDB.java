@@ -64,18 +64,18 @@ public class MyDB {
         return cursor.getCount() > 0;
     }
 
-    void insertFriend(String friend)
+    void insertFriend(String nikName, String friend)
     {
         SQLiteDatabase DB = myhelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("NikName", MainActivity.nikName);
+        contentValues.put("NikName", nikName);
         contentValues.put("Friend", friend);
         DB.insert("Friends", null , contentValues);
     }
 
-    ArrayList<String> getFriends(){
+    ArrayList<String> getFriends(String nikName){
         SQLiteDatabase DB = myhelper.getWritableDatabase();
-        @SuppressLint("Recycle") Cursor cursor = DB.rawQuery("SELECT Friend FROM Friends WHERE NikName LIKE "+ "'" + MainActivity.nikName +"'", null);
+        @SuppressLint("Recycle") Cursor cursor = DB.rawQuery("SELECT Friend FROM Friends WHERE NikName LIKE "+ "'" + nikName +"'", null);
         ArrayList<String> friends = new ArrayList<>();
         while (cursor.moveToNext())
         {
@@ -84,9 +84,9 @@ public class MyDB {
         return friends;
     }
 
-    void removeFriend(String friend){
+    void removeFriend(String nikName, String friend){
         SQLiteDatabase DB = myhelper.getWritableDatabase();
-        DB.execSQL("DELETE FROM Friends WHERE NikName LIKE " + "'" + MainActivity.nikName+ "'" + " AND Friend LIKE " + "'" + friend+ "'");
+        DB.execSQL("DELETE FROM Friends WHERE NikName LIKE " + "'" + nikName+ "'" + " AND Friend LIKE " + "'" + friend+ "'");
     }
 
     long insertMessage(String datetime, String myNNFriendsNN, String sender, String recipient, String momeType, String data) {
@@ -117,11 +117,11 @@ public class MyDB {
         return messages;
     }
 
-    void insertUnreadMessages(String friend, String receiveDate)
+    void insertUnreadMessages(String nikName, String friend, String receiveDate)
     {
         SQLiteDatabase DB = myhelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("NikName", MainActivity.nikName);
+        contentValues.put("NikName", nikName);
         contentValues.put("Friend", friend);
         contentValues.put("ReceiveDate", receiveDate);
         DB.insert("UnreadMessages", null , contentValues);
@@ -147,7 +147,7 @@ public class MyDB {
 
     private void removeFromUnreadMessages(String nikName, String friend){
         SQLiteDatabase DB = myhelper.getWritableDatabase();
-        DB.execSQL("DELETE FROM UnreadMessages WHERE NikName LIKE " + "'" + MainActivity.nikName+ "'" + " AND Friend LIKE " + "'" + friend+ "'");
+        DB.execSQL("DELETE FROM UnreadMessages WHERE NikName LIKE " + "'" + nikName+ "'" + " AND Friend LIKE " + "'" + friend+ "'");
     }
 
     void logUser(){
@@ -208,7 +208,7 @@ public class MyDB {
                 db.execSQL("CREATE TABLE Friends (NikName VARCHAR(255), Friend VARCHAR(255), PRIMARY KEY(NikName, Friend));");
                 db.execSQL("CREATE TABLE UnreadMessages (NikName VARCHAR(255), Friend VARCHAR(255), ReceiveDate DATETIME)");
                 db.execSQL("CREATE TABLE Messages (DatetimeAsVarchar VARCHAR(255), MyNNFriendsNN VARCHAR(255), Sender VARCHAR(255), Recipient VARCHAR(255), " +
-                        "MimeType VARCHAR(255), Data VARCHAR, Datetime DATETIME, FotoSaved INTEGER, PRIMARY KEY (DatetimeAsVarchar));");
+                        "MimeType VARCHAR(255), Data VARCHAR, Datetime DATETIME, FotoSaved INTEGER, PRIMARY KEY (DatetimeAsVarchar, MyNNFriendsNN));");
             } catch (Exception ignored) {
             }
         }

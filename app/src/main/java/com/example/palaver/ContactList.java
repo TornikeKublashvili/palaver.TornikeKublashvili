@@ -11,14 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ContactList extends AppCompatActivity {
     private RemoveContact removeContact;
@@ -27,6 +28,10 @@ public class ContactList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_list);
+
+        MainActivity.startTokenService = true;
+        Intent tokenService = new Intent(ContactList.this, TokenService.class);
+        startService(tokenService);
 
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
@@ -37,7 +42,7 @@ public class ContactList extends AppCompatActivity {
     public void onResume(){
         super.onResume();
 
-        if(Info.isNetworkAvailable(ContactList.this)){
+       if(Info.isNetworkAvailable(ContactList.this)){
             refreschContactList();
         }
         LinearLayout linearLayoutContactList = findViewById(R.id.LinearLayout_ContactList);
@@ -47,8 +52,8 @@ public class ContactList extends AppCompatActivity {
     private void refreschContactList(){
         try{
             JSONObject json = new JSONObject();
-            json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
-            json.put("Password",  MainActivity.sharedPreferences.getString("Password", ""));
+            json.put("Username", MainActivity.nikName);
+            json.put("Password",  MainActivity.password);
 
             JSONObject response = new NetworkHelper().execute("api/friends/get", json.toString()).get();
 
@@ -57,11 +62,9 @@ public class ContactList extends AppCompatActivity {
             }
             else if(response.getInt("MsgType")==1){
                 JSONArray jarray = response.getJSONArray("Data");
-                HashSet<String> contacts = new HashSet<>();
                 for (int i = 0; i < jarray.length(); i++) {
-                    contacts.add(jarray.getString(i));
+                    MainActivity.DB.insertFriend(jarray.getString(i));
                 }
-                MainActivity.sharedPreferences.edit().putStringSet("ContactList", contacts).apply();
             }
         }
         catch(Exception e){
@@ -70,8 +73,7 @@ public class ContactList extends AppCompatActivity {
     }
 
     public void addFriends(LinearLayout linearLayout){
-        Set<String> contactListSet = MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>());
-        ArrayList<String> contactListList = new ArrayList(contactListSet);
+        ArrayList<String> contactListList = MainActivity.DB.getFriends();
         Collections.sort(contactListList);
 
         if(linearLayout.getChildCount() > 0){
@@ -88,7 +90,7 @@ public class ContactList extends AppCompatActivity {
                 textView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MainActivity.sharedPreferences.edit().putString("ChatPartner", textView.getText().toString()).apply();
+                        MainActivity.chatPartner = textView.getText().toString();
                         Intent intent = new Intent(ContactList.this, ActivityChat.class);
                         startActivity(intent);
                     }
@@ -102,10 +104,6 @@ public class ContactList extends AppCompatActivity {
                         args.putString("contact", textView.getText().toString());
                         removeContact.setArguments(args);
                         removeContact.show(getFragmentManager(), textView.getText().toString());
-
-/*
-                    removeFriend(textView.getText().toString());
-*/
                         return true;
                     }
                 });
@@ -127,7 +125,8 @@ public class ContactList extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId()==R.id.Log_Out){
-            MainActivity.sharedPreferences.edit().putBoolean("IsLoggedIn", false).apply();
+            MainActivity.DB.setLoggedIn(MainActivity.nikName, MainActivity.password, 0);
+            MainActivity.startTokenService = false;
             Intent intent = new Intent(ContactList.this, MainActivity.class);
             startActivity(intent);
             finish();

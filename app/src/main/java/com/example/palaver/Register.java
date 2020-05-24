@@ -126,7 +126,7 @@ public class Register extends AppCompatActivity {
                 }
             }
             else{
-                Info.show(Register.this, getString(R.string.no_internet_connection), Info.Color.Red);
+                Info.show(Register.this, getString(R.string.noInternetConnection), Info.Color.Red);
                 Log.d("LOG_Register", "no internet connection");
             }
             }

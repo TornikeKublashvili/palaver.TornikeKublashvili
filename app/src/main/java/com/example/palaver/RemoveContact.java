@@ -13,9 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.RequiresApi;
 import org.json.JSONObject;
-import java.util.HashSet;
+
 import java.util.Objects;
-import java.util.Set;
 
 public  class RemoveContact extends DialogFragment {
 
@@ -60,8 +59,8 @@ public  class RemoveContact extends DialogFragment {
         if (Info.isNetworkAvailable(activity)) {
             try {
                 JSONObject json = new JSONObject();
-                json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
-                json.put("Password", MainActivity.sharedPreferences.getString("Password", ""));
+                json.put("Username", MainActivity.nikName);
+                json.put("Password", MainActivity.password);
                 json.put("Friend", friend);
 
                 JSONObject response = new NetworkHelper().execute("api/friends/remove", json.toString()).get();
@@ -69,9 +68,7 @@ public  class RemoveContact extends DialogFragment {
                 if (response.getInt("MsgType") == 0) {
                     Info.show(activity, response.getString("Info"), Info.Color.Red);
                 } else if (response.getInt("MsgType") == 1) {
-                    Set<String> contactList = new HashSet<>(MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>()));
-                    contactList.remove(friend);
-                    MainActivity.sharedPreferences.edit().putStringSet("ContactList", contactList).apply();
+                    MainActivity.DB.removeFriend(friend);
                     Info.show(activity, response.getString("Info"), Info.Color.Green);
                     ((ContactList)getActivity()).onResume();
                 }
@@ -80,7 +77,7 @@ public  class RemoveContact extends DialogFragment {
                 Log.d("LOG_RemoveContact", e.toString());
             }
         }else {
-            Log.d("LOG_RemoveContact", getString(R.string.no_internet_connection));
+            Log.d("LOG_RemoveContact", getString(R.string.noInternetConnection));
         }
     }
 }

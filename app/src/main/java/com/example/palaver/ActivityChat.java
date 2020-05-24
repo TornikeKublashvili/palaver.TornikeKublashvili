@@ -5,9 +5,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -16,14 +19,18 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,10 +40,15 @@ import com.google.android.gms.location.LocationServices;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ActivityChat extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -48,7 +60,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
     private LinearLayout linearLayoutAttachment;
     private List<ChatMessage> chatMessages = new ArrayList<>();
     private List<ChatMessage> chatMessagesToSend = new ArrayList<>();
-
+    private Timer timer;
     private ChatAdapter chatAdapter;
 
     FusedLocationProviderClient mFusedLocationClient;
@@ -70,10 +82,9 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-
-        nikName = MainActivity.sharedPreferences.getString("NikName", "");
-        password = MainActivity.sharedPreferences.getString("Password", "");
-        chatPartner = MainActivity.sharedPreferences.getString("ChatPartner", "");
+        nikName = MainActivity.nikName;
+        password = MainActivity.password;
+        chatPartner = MainActivity.chatPartner;
 
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
@@ -81,16 +92,45 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         listViewChat = findViewById(R.id.ListViev_Chat);
         listViewChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("NewApi")
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            ChatMessage message = (ChatMessage) adapterView.getItemAtPosition(i);
-            if (message.getMimetype().equals("location/plain")) {
-                String[] params = message.getText().split(":");
-                Uri uri = Uri.parse("geo:0,0?q=" +Float.parseFloat(params[1]) +"," + Float.parseFloat(params[2]) +"(Google)");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                intent.setPackage("com.google.android.apps.maps");
-                startActivity(intent);
-            }
+                ChatMessage message = (ChatMessage) adapterView.getItemAtPosition(i);
+                if (message.getMimetype().equals("location/plain")) {
+                    String[] params = message.getData().split(":");
+                    Uri uri = Uri.parse("geo:0,0?q=" + Float.parseFloat(params[1]) + "," + Float.parseFloat(params[2]) + "(Google)");
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    intent.setPackage("com.google.android.apps.maps");
+                    startActivity(intent);
+                } else if (message.getMimetype().equals("Image/*")) {
+                    boolean hasPermission = (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+                    if (!hasPermission) {
+                        ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 112);
+                    } else {
+                        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Palaver/Palaver Fotos";
+                        File storageDir = new File(path);
+                        if (!storageDir.exists() && !storageDir.mkdirs()) {
+                            Log.d("LOG_ActivityChat", "create directory failed -> Palaver/Palaver Fotos");
+                        }
+                        Bitmap b = Methods.base64ToBitmap(message.getData());
+                        final File foto = new File(storageDir, message.getSender() + "_" + message.getDate() + ".JPEG");
+                        FileOutputStream fOut;
+                        try {
+                            fOut = new FileOutputStream(foto);
+                            assert b != null;
+                            b.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                            fOut.flush();
+                            fOut.close();
+                            ImageView imageViewMessage = view.findViewById(R.id.ImageView_Message);
+                            imageViewMessage.setAlpha(1.0F);
+                            TextView textViewMessageDownload = view.findViewById(R.id.TextView_Message_Download);
+                            textViewMessageDownload.setVisibility(View.GONE);
+
+                        } catch (IOException e) {
+                            Log.d("LOG_MainActivity", e.toString());
+                        }
+                    }
+                }
             }
         });
 
@@ -98,7 +138,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
         linearLayoutChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                 assert inputMethodManager != null;
                 inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
@@ -111,6 +151,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
@@ -119,6 +160,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             public void afterTextChanged(Editable s) {
             }
         });
+
         ImageButton imageButtonChatSend = findViewById(R.id.ImageButton_Chat_Send);
         imageButtonChatSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,12 +173,11 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
         imageButtonChatAttach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if(linearLayoutAttachment.getVisibility() == View.VISIBLE){
-                linearLayoutAttachment.setVisibility(View.GONE);
-            }
-            else{
-                linearLayoutAttachment.setVisibility(View.VISIBLE);
-            }
+                if (linearLayoutAttachment.getVisibility() == View.VISIBLE) {
+                    linearLayoutAttachment.setVisibility(View.GONE);
+                } else {
+                    linearLayoutAttachment.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -150,9 +191,10 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         ImageButton imageButtonCHooseImage = findViewById(R.id.ImageButton_Choose_Image);
         imageButtonCHooseImage.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onClick(View v) {
-                //TODO
+                createImageBrowsingRequest();
             }
         });
 
@@ -174,9 +216,19 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         chatAdapter = new ChatAdapter(this, chatMessages);
         listViewChat.setAdapter(chatAdapter);
-        getChatHistory();
-    }
 
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        String date =  dateFormat.format(cal.getTime());
+
+  //      insertChatHistoriIntoDB(date);
+
+        ArrayList<ChatMessage> messages = MainActivity.DB.getMessages(MainActivity.nikName + MainActivity.chatPartner, date);
+        chatMessages.clear();
+        chatMessages.addAll(messages);
+        listViewChat.setSelection(chatAdapter.getCount()-1);
+    }
     @Override
     protected void onStart() {
         mGoogleApiClient.connect();
@@ -186,13 +238,52 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
+        timer.cancel();
         super.onStop();
     }
 
     @Override
     protected  void onResume(){
         super.onResume();
-        loadAndSaveChatHistory();
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ActivityChat.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        if(MainActivity.DB.getCountunreadMessages(nikName, chatPartner) >0){
+                            String date = MainActivity.DB.getMinDateFromUnreadMessages(nikName, chatPartner).replace(' ','T');
+                            insertChatHistoriIntoDB(date);
+                        }
+                    }
+                });
+            }
+        }, 0, 1000);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            Bitmap bmp = Methods.getBitmap(ActivityChat.this, selectedImage, 1920, 1080);
+            chatMessagesToSend.add(new ChatMessage(nikName, chatPartner, "", "Image/*", Methods.bitmapToBase64(bmp),0));
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void createImageBrowsingRequest() {
+        //checking for image browsing permissions
+        if (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 22);
+        } else {
+            //start image browsing
+            // creates and starts image browsing intent
+            // results will be handled in onActivityResult method
+            Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, 1);
+        }
     }
 
     private void sendMessage(){
@@ -213,10 +304,11 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                         Log.d("LOG_ActivityChat", response.toString());
                     }
                     else{
-                        loadAndSaveChatHistory();
                         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                         JSONObject data = (JSONObject)response.get("Data");
-                        chatMessages.add(new ChatMessage(nikName, chatPartner, dateFormat.parse(data.getString("DateTime")), "text/plain", editTextChatMessage.getText().toString()));
+                        String datetime = data.getString("DateTime").substring(0, data.getString("DateTime").indexOf('.')).replace('T',' ');
+                        MainActivity.DB.insertMessage(data.getString("DateTime"), MainActivity.nikName+MainActivity.chatPartner, nikName, chatPartner, "text/plain", editTextChatMessage.getText().toString());
+                        chatMessages.add(new ChatMessage(nikName, chatPartner, datetime, "text/plain", editTextChatMessage.getText().toString(),0));
                         chatAdapter.notifyDataSetChanged();
                         listViewChat.setSelection(chatAdapter.getCount()-1);
                         editTextChatMessage.setText("");
@@ -227,7 +319,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
             else{
-                Info.show(ActivityChat.this, getString(R.string.no_internet_connection), Info.Color.Red);
+                Info.show(ActivityChat.this, getString(R.string.error_while_login), Info.Color.Red);
                 Log.d("LOG_ActivityChat", "no internet connection");
             }
         }
@@ -244,7 +336,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                         json.put("Password", password);
                         json.put("Recipient", chatPartner);
                         json.put("MimeType", chatMessage.getMimetype());
-                        json.put("Data", chatMessage.getText());
+                        json.put("Data", chatMessage.getData());
 
                         JSONObject response = new NetworkHelper().execute("api/message/send", json.toString()).get();
 
@@ -252,13 +344,12 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                             Info.show(ActivityChat.this, response.getString("Info"), Info.Color.Red);
                             Log.d("LOG_ActivityChat", response.toString());
                         } else {
-                            loadAndSaveChatHistory();
-                            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                             JSONObject data = (JSONObject)response.get("Data");
-                            chatMessages.add(new ChatMessage(nikName, chatPartner, dateFormat.parse(data.getString("DateTime")), chatMessage.getMimetype(), chatMessage.getText()));
+                            MainActivity.DB.insertMessage(data.getString("DateTime"), nikName+chatPartner, nikName, chatPartner, chatMessage.getMimetype(), chatMessage.getData());
+                            chatMessages.add(new ChatMessage(nikName, chatPartner, data.getString("DateTime"), chatMessage.getMimetype(), chatMessage.getData(),0));
                             chatAdapter.notifyDataSetChanged();
                             listViewChat.setSelection(chatAdapter.getCount()-1);
-                            editTextChatMessage.setText("");                        }
+                        }
                     } catch (Exception e) {
                         Info.show(ActivityChat.this, e.getMessage(), Info.Color.Red);
                         Log.d("LOG_ActivityChat", e.toString());
@@ -267,65 +358,39 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 chatMessagesToSend.clear();
             }
             else {
-                Info.show(ActivityChat.this, getString(R.string.no_internet_connection), Info.Color.Red);
                 Log.d("LOG_ActivityChat", "no internet connection");
              }
         }
     }
 
-    private void getChatHistory() {
+    private void insertChatHistoriIntoDB(String fromDate) {
         try {
             JSONObject json = new JSONObject();
             json.put("Username", nikName);
             json.put("Password", password);
             json.put("Recipient", chatPartner);
-            JSONObject response;
-            if(Info.isNetworkAvailable(ActivityChat.this)) {
-                response = new NetworkHelper().execute("api/message/get", json.toString()).get();
-            }
-            else {
-                response = new JSONObject(MainActivity.sharedPreferences.getString("Chat"+nikName+chatPartner, ""));
-            }
+            json.put("Offset", fromDate);
+            JSONObject response = new NetworkHelper().execute("api/message/getoffset", json.toString()).get();
+
             if (response.getInt("MsgType") == 0) {
                 Info.show(ActivityChat.this, response.getString("Info"), Info.Color.Red);
                 Log.d("LOG_ActivityChat", response.toString());
             } else {
-                chatMessages.clear();
                 JSONArray jarray = response.getJSONArray("Data");
                 JSONObject jitem;
-                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-
                 for (int i = 0; i < jarray.length(); i++) {
                     jitem = jarray.getJSONObject(i);
                     String sender = jitem.getString("Sender");
                     String recipient = jitem.getString("Recipient");
                     String mimetype = jitem.getString("Mimetype");
                     String data = jitem.getString("Data");
-                    Date date = dateFormat.parse(jitem.getString("DateTime"));
-
-                    chatMessages.add(new ChatMessage(sender, recipient, date, mimetype, data));
-                    chatAdapter.notifyDataSetChanged();
-                    listViewChat.setSelection(chatAdapter.getCount() - 1);
+                    String datetime = jitem.getString("DateTime");
+                   if( MainActivity.DB.insertMessage(datetime, MainActivity.nikName+MainActivity.chatPartner, sender, recipient, mimetype, data) > 0){
+                       chatMessages.add(new ChatMessage(sender, recipient, datetime, mimetype, data,0));
+                       chatAdapter.notifyDataSetChanged();
+                       listViewChat.setSelection(chatAdapter.getCount()-1);
+                   }
                 }
-            }
-        } catch (Exception e) {
-            Log.d("LOG_ActivityChat", e.toString());
-        }
-    }
-
-    private void loadAndSaveChatHistory() {
-        try {
-            JSONObject json = new JSONObject();
-            json.put("Username", nikName);
-            json.put("Password", password);
-            json.put("Recipient", chatPartner);
-            JSONObject response  = new NetworkHelper().execute("api/message/get", json.toString()).get();
-
-            if (response.getInt("MsgType") == 0) {
-                Log.d("LOG_ActivityChat", response.toString());
-            } else {
-                MainActivity.sharedPreferences.edit().putString("Chat"+nikName+chatPartner, response.toString()).apply();
-                Log.d("LOG_ActivityChat", "Save Chat Histori from " + nikName + " to" + chatPartner);
             }
         } catch (Exception e) {
             Log.d("LOG_ActivityChat", e.toString());
@@ -338,7 +403,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             return;
         }
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        chatMessagesToSend.add(new ChatMessage(nikName, chatPartner, "location/plain", location.getAltitude() + ":" + location.getLatitude() + ":" + location.getLongitude() + ":"));
+        chatMessagesToSend.add(new ChatMessage(nikName, chatPartner, "","location/plain", location.getAltitude() + ":" + location.getLatitude() + ":" + location.getLongitude() + ":", 0));
         //TODO set loction button klickable false
     }
 
@@ -353,4 +418,5 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     }
+
 }

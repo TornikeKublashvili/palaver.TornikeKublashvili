@@ -74,42 +74,47 @@ public class Login extends AppCompatActivity {
         buttonLogIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(nikName.length() < 1){
-                    Info.show(Login.this, getString(R.string.nikName_is_empty), Info.Color.Red);
+            if(nikName.length() < 1){
+                Info.show(Login.this, getString(R.string.nikName_is_empty), Info.Color.Red);
+            }
+            else if(password.length() < 1){
+                Info.show(Login.this, getString(R.string.password_is_empty), Info.Color.Red);
+            }
+            else{
+                if (Info.isNetworkAvailable(Login.this)) {
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("Username", nikName);
+                        json.put("Password", password);
+
+                        JSONObject response = new NetworkHelper().execute("api/user/validate", json.toString()).get();
+                        if(response.getInt("MsgType") == 0){
+                            Info.show(Login.this, response.getString("Info"), Info.Color.Red);
+                        }
+                        else{
+                            MainActivity.DB.insertUser(nikName, password);
+                            MainActivity.DB.setLoggedIn(nikName, password, 1);
+
+                            Intent intent = new Intent(Login.this, ContactList.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    } catch (Exception e) {
+                        Info.show(Login.this, e.getMessage(), Info.Color.Red);
+                        Log.d("LOG_Login", e.toString());
+                    }
                 }
-                else if(password.length() < 1){
-                    Info.show(Login.this, getString(R.string.password_is_empty), Info.Color.Red);
+                else if(MainActivity.DB.isValideUser(nikName, password)){
+                    MainActivity.DB.setLoggedIn(nikName, password, 1);
+                    Intent intent = new Intent(Login.this, ContactList.class);
+                    startActivity(intent);
+                    finish();
                 }
                 else{
-                    if (Info.isNetworkAvailable(Login.this)) {
-                        try {
-                            JSONObject json = new JSONObject();
-                            json.put("Username", nikName);
-                            json.put("Password", password);
-
-                            JSONObject response = new NetworkHelper().execute("api/user/validate", json.toString()).get();
-                            if(response.getInt("MsgType") == 0){
-                                Info.show(Login.this, response.getString("Info"), Info.Color.Red);
-                            }
-                            else{
-                                MainActivity.sharedPreferences.edit().putBoolean("IsLoggedIn", true).apply();
-                                MainActivity.sharedPreferences.edit().putString("NikName", nikName).apply();
-                                MainActivity.sharedPreferences.edit().putString("Password", password).apply();
-                                Intent intent = new Intent(Login.this, ContactList.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        } catch (Exception e) {
-                            Info.show(Login.this, e.getMessage(), Info.Color.Red);
-                            Log.d("LOG_Login", e.toString());
-                        }
-                    }
-                    else{
-                        Info.show(Login.this, getString(R.string.no_internet_connection), Info.Color.Red);
-                        Log.d("LOG_Login", "no internet connection");
-                    }
-
+                    Info.show(Login.this, getString(R.string.error_while_login), Info.Color.Red);
+                    Log.d("LOG_Login", "no internet connection");
                 }
+            }
             }
         });
 

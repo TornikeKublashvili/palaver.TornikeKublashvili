@@ -1,31 +1,20 @@
 package com.example.palaver;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 class ChatMessage {
     private String sneder;
     private String recipient;
     private String date;
-    private String text;
+    private String data;
     private String mimetype;
+    private int fotoSaved;
 
-    ChatMessage(String sender, String recipient, Date date, String mimetype, String text){
+    ChatMessage(String sender, String recipient, String date, String mimetype, String data, int fotoSaved){
         this.sneder = sender;
         this.recipient = recipient;
-        DateFormat dfOutput = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
-        this.date = dfOutput.format(date);
-        this.text = text + "\n" + dfOutput.format(date);
+        this.date = date;
+        this.data = data;
         this.mimetype = mimetype;
-    }
-
-    ChatMessage(String sender, String recipient, String mimetype, String text){
-        this.sneder = sender;
-        this.recipient = recipient;
-        this.text = text;
-        this.mimetype = mimetype;
+        this.fotoSaved = fotoSaved;
     }
 
     String getSender() {
@@ -40,8 +29,8 @@ class ChatMessage {
         return date;
     }
 
-    String getText() {
-        return text;
+    String getData() {
+        return data;
     }
 
     String getMimetype(){ return mimetype; }

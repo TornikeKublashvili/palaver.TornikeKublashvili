@@ -24,7 +24,7 @@ public class ChangePassword extends AppCompatActivity {
     private String newPassword ="";
     private String newPasswordConfirm ="";
     private String oldPassword ="";
-    private String nikName = MainActivity.sharedPreferences.getString("NikName", "");
+    private String nikName = MainActivity.nikName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,26 +99,34 @@ public class ChangePassword extends AppCompatActivity {
                     Info.show(ChangePassword.this, getString(R.string.please_confirm_password), Info.Color.Red);
                 }
                 else{
-                    try{
-                        JSONObject json = new JSONObject();
-                        json.put("Username", nikName);
-                        json.put("Password", oldPassword);
-                        json.put("NewPassword", newPassword);
+                    if (Info.isNetworkAvailable(ChangePassword.this)) {
+                        try{
+                            JSONObject json = new JSONObject();
+                            json.put("Username", nikName);
+                            json.put("Password", oldPassword);
+                            json.put("NewPassword", newPassword);
 
-                        JSONObject response = new NetworkHelper().execute("api/user/password", json.toString()).get();
+                            JSONObject response = new NetworkHelper().execute("api/user/password", json.toString()).get();
 
-                        if(response.getInt("MsgType")==0){
-                            Info.show(ChangePassword.this, response.getString("Info"), Info.Color.Red);
+                            if(response.getInt("MsgType")==0){
+                                Info.show(ChangePassword.this, response.getString("Info"), Info.Color.Red);
+                            }
+                            else if(response.getInt("MsgType")==1){
+                                MainActivity.DB.updatePassword(nikName, newPassword);
+                                MainActivity.nikName = nikName;
+                                MainActivity.password = newPassword;
+                                editTextNewPassword.setText("");
+                                editTextNewPasswordConfirm.setText("");
+                                editTextOldPassword.setText("");
+                                Info.show(ChangePassword.this, response.getString("Info"), Info.Color.Green);
+                            }
                         }
-                        else if(response.getInt("MsgType")==1){
-                            editTextNewPassword.setText("");
-                            editTextNewPasswordConfirm.setText("");
-                            editTextOldPassword.setText("");
-                            Info.show(ChangePassword.this, response.getString("Info"), Info.Color.Green);
+                        catch (Exception e){
+                            Log.d("LOG_ChangePassword", e.toString());
                         }
-                    }
-                    catch (Exception e){
-                        Log.d("LOG_ChangePassword", e.toString());
+                    }else {
+                        Info.show(ChangePassword.this, getString(R.string.error_while_login), Info.Color.Red);
+                        Log.d("LOG_ChangePassword", getString(R.string.noInternetConnection));
                     }
                 }
             }
@@ -136,20 +144,18 @@ public class ChangePassword extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.Change_Password).setVisible(false);
         menu.findItem(R.id.Button_Add_Contact).setVisible(false);
+        menu.findItem(R.id.App_Version).setVisible(false);
         return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId()==R.id.Log_Out){
-            MainActivity.sharedPreferences.edit().putBoolean("IsLoggedIn", false).apply();
+            MainActivity.DB.setLoggedIn(MainActivity.nikName, MainActivity.password, 0);
             Intent intent = new Intent(ChangePassword.this, MainActivity.class);
             startActivity(intent);
         }
-        else if(item.getItemId()==R.id.Change_Password){
-            Intent intent = new Intent(ChangePassword.this, ChangePassword.class);
-            startActivity(intent);
-        }
+
         return super.onOptionsItemSelected(item);
     }
     public void hideKeyboard(View view) {

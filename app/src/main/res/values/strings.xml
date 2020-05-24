@@ -25,7 +25,7 @@
     <string name="button_add_frend">Kontakt hinzufügen</string>
     <string name="button_remove_frend">Kontakt Löschen</string>
     <string name="write_a_message">Write a message</string>
-    <string name="no_internet_connection">Kein Internet!</string>
+    <string name="error_while_login">Anmeldung fehlgeschlagen!!! \nEntweder sind die Logindaten falsch oder du hast dich auf dieses Handy noch nie angemeldet</string>
     <string name="TextView_AddContact">Gib den Namen eines Palaver-Nutzers ein, um diesen hinzuzufügen.</string>
     <string name="EditText_AddContact">Kontaktname</string>
     <string name="add_coontact">Kontakt hinzufügen</string>
@@ -38,4 +38,7 @@
     <string name="palaver">Palaver</string>
     <string name="tocken_id">594324547505</string>
     <string name="locationFrom">Location von:</string>
+    <string name="saveFoto">Foto Speichern</string>
+    <string name="todo">TODO</string>
+    <string name="noInternetConnection">Sie habei keine Internet Verbindung!</string>
 </resources>

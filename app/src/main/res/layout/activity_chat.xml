@@ -32,24 +32,28 @@
         android:gravity="center"
         android:background="@drawable/attachment"
         android:orientation="horizontal"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <ImageButton
             android:id="@+id/ImageButton_Choose_Location"
             android:background="@drawable/location"
-            style="@style/ImageButton_Choose"/>
+            style="@style/ImageButton_Choose"
+            android:contentDescription="@string/todo" />
         <ImageButton
             android:id="@+id/ImageButton_Choose_Image"
             android:background="@drawable/image"
-            style="@style/ImageButton_Choose"/>
+            style="@style/ImageButton_Choose"
+            android:contentDescription="@string/todo" />
         <ImageButton
             android:id="@+id/ImageButton_Choose_Video"
             android:background="@drawable/video"
-            style="@style/ImageButton_Choose"/>
+            style="@style/ImageButton_Choose"
+            android:contentDescription="@string/todo" />
         <ImageButton
             android:id="@+id/ImageButton_Choose_Doc"
             android:background="@drawable/doc"
-            style="@style/ImageButton_Choose"/>
+            style="@style/ImageButton_Choose"
+            android:contentDescription="@string/todo" />
     </LinearLayout>
 
     <LinearLayout

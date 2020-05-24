@@ -11,9 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+
 import org.json.JSONObject;
-import java.util.HashSet;
-import java.util.Set;
 
 public class AddContact extends DialogFragment {
 
@@ -43,8 +42,8 @@ public class AddContact extends DialogFragment {
                         String friendsNikName = editText.getText().toString();
 
                         JSONObject json = new JSONObject();
-                        json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
-                        json.put("Password",  MainActivity.sharedPreferences.getString("Password", ""));
+                        json.put("Username", MainActivity.nikName);
+                        json.put("Password",  MainActivity.password);
                         json.put("Friend", friendsNikName);
 
                         JSONObject response = new NetworkHelper().execute("api/friends/add", json.toString()).get();
@@ -53,9 +52,7 @@ public class AddContact extends DialogFragment {
                             Info.show(activity, response.getString("Info"), Info.Color.Red);
                         }
                         else if(response.getInt("MsgType")==1){
-                            Set<String> contactList = new HashSet<>(MainActivity.sharedPreferences.getStringSet("ContactList", new HashSet<String>()));
-                            contactList.add(friendsNikName);
-                            MainActivity.sharedPreferences.edit().putStringSet("ContactList", contactList).apply();
+                            MainActivity.DB.insertFriend(friendsNikName);
                             Info.show(activity, response.getString("Info"), Info.Color.Green);
                             ((ContactList)getActivity()).onResume();                            }
                     }
@@ -63,8 +60,8 @@ public class AddContact extends DialogFragment {
                         Log.d("LOG_AddContact", e.toString());
                     }
                 }else {
-                    Info.show(activity, getString(R.string.no_internet_connection), Info.Color.Red);
-                    Log.d("LOG_AddContact", getString(R.string.no_internet_connection));
+                    Info.show(activity, getString(R.string.error_while_login), Info.Color.Red);
+                    Log.d("LOG_AddContact", getString(R.string.noInternetConnection));
                 }
                 }
             })

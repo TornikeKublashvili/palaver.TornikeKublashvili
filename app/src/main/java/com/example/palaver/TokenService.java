@@ -18,8 +18,13 @@ public class TokenService extends IntentService{
     protected void onHandleIntent(Intent intent) {
         InstanceID instanceID = InstanceID.getInstance(this);
         try {
-            String token = instanceID.getToken(getString(R.string.tocken_id), GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            sendTokenToServer(token);
+            if(MainActivity.startTokenService) {
+                String token = instanceID.getToken(getString(R.string.tocken_id), GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+                sendTokenToServer(token);
+            }
+            else{
+                instanceID.deleteInstanceID();
+            }
         } catch (IOException e) {
             Log.d("LOG_TokenService", e.toString());
         }
@@ -29,8 +34,8 @@ public class TokenService extends IntentService{
         if (Info.isNetworkAvailable(TokenService.this)) {
             try {
                 JSONObject json = new JSONObject();
-                json.put("Username", MainActivity.sharedPreferences.getString("NikName", ""));
-                json.put("Password", MainActivity.sharedPreferences.getString("Password", ""));
+                json.put("Username", MainActivity.nikName);
+                json.put("Password", MainActivity.password);
                 json.put("PushToken", gcmID);
 
                 JSONObject response = new NetworkHelper().execute("/api/user/pushtoken", json.toString()).get();

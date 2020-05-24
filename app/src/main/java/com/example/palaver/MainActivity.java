@@ -1,7 +1,6 @@
 package com.example.palaver;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,18 +8,25 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-  //  Handler handler = new Handler();
-    public static SharedPreferences sharedPreferences;
+    public static MyDB DB;
+    public static String nikName;
+    public static String password;
+    public static String chatPartner;
+    public static boolean startTokenService = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent tokenService = new Intent(MainActivity.this, TokenService.class);
+        startService(tokenService);
 
+        DB = new MyDB(this);
 
-        sharedPreferences = getSharedPreferences("MySharedPreferences", MODE_PRIVATE);
-        if (sharedPreferences.getBoolean("IsLoggedIn", false)) {
+        getLoggesUser();
+
+        if (nikName != null){
             Intent intent = new Intent(MainActivity.this, ContactList.class);
             startActivity(intent);
             finish();
@@ -30,5 +36,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+    }
+
+    private void getLoggesUser(){
+        String[] s = DB.getLoggedUser();
+        nikName = s[0];
+        password = s[1];
     }
 }

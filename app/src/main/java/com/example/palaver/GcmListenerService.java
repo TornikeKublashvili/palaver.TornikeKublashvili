@@ -1,10 +1,14 @@
 package com.example.palaver;
 
+import android.annotation.SuppressLint;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class GcmListenerService extends com.google.android.gms.gcm.GcmListenerService {
     @Override
@@ -17,6 +21,10 @@ public class GcmListenerService extends com.google.android.gms.gcm.GcmListenerSe
             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
             r.play();
             Log.d("LOG_GcmListenerService", "Receive Messsage From " + from + " Bundle " + bundle.toString());
+
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date d = new Date();
+            MainActivity.DB.insertUnreadMessages(bundle.getString("sender"), dateFormat.format(d));
         } catch (Exception e) {
             Log.d("LOG_GcmListenerService", e.toString());
         }

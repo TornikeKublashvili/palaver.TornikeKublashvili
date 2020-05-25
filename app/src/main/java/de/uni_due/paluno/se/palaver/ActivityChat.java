@@ -1,4 +1,4 @@
-package com.example.palaver;
+package de.uni_due.paluno.se.palaver;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

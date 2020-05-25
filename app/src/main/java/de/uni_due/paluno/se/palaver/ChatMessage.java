@@ -1,4 +1,4 @@
-package com.example.palaver;
+package de.uni_due.paluno.se.palaver;
 
 class ChatMessage {
     private String sneder;

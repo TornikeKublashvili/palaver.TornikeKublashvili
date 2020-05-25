@@ -1,4 +1,4 @@
-package com.example.palaver;
+package de.uni_due.paluno.se.palaver;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 
 import java.util.List;
 

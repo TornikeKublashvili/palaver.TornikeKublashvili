@@ -1,4 +1,4 @@
-package com.example.palaver;
+package de.uni_due.paluno.se.palaver;
 
 import android.content.ContentResolver;
 import android.content.Context;

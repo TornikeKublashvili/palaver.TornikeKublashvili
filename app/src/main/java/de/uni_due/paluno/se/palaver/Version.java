@@ -1,9 +1,10 @@
-package com.example.palaver;
+package de.uni_due.paluno.se.palaver;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.widget.TextView;
+
 
 public class Version extends AppCompatActivity {
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.palaver">
+    package="de.uni_due.paluno.se.palaver">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -33,14 +33,14 @@
             </intent-filter>
         </receiver>
         <service
-            android:name="com.example.palaver.GcmListenerService"
+            android:name=".GcmListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
         <service
-            android:name="com.example.palaver.TokenService"
+            android:name=".TokenService"
             android:exported="false">
         </service>
 

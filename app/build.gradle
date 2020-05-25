@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.example.palaver.TornikeKublashvili"
+        applicationId "de.uni_due.paluno.se.palaver"
         minSdkVersion 14
         targetSdkVersion 29
         versionCode 1

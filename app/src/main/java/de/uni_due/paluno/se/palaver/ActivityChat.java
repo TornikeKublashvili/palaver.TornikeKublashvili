@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -50,6 +51,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static de.uni_due.paluno.se.palaver.R.layout.*;
+
 public class ActivityChat extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private EditText editTextChatMessage;
@@ -62,6 +65,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
     private List<ChatMessage> chatMessagesToSend = new ArrayList<>();
     private Timer timer;
     private ChatAdapter chatAdapter;
+    private LinearLayout layoutAttachments;
 
     FusedLocationProviderClient mFusedLocationClient;
 
@@ -70,7 +74,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(activity_chat);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -165,7 +169,11 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
         imageButtonChatSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendAttachements();
                 sendMessage();
+                if( layoutAttachments.getChildCount() > 0){
+                    layoutAttachments.removeAllViews();
+                }
             }
         });
 
@@ -219,13 +227,16 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
+        cal.add(Calendar.DATE, -7);
         String date =  dateFormat.format(cal.getTime());
 
         ArrayList<ChatMessage> messages = MainActivity.DB.getMessages(MainActivity.nikName + MainActivity.chatPartner, date);
         chatMessages.clear();
         chatMessages.addAll(messages);
         listViewChat.setSelection(chatAdapter.getCount()-1);
+
+        layoutAttachments = findViewById(R.id.LinearLayout_Attachments);
+
     }
     @Override
     protected void onStart() {
@@ -257,27 +268,6 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 });
             }
         }, 0, 1000);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            Bitmap bmp = Methods.getBitmap(ActivityChat.this, selectedImage, 1920, 1080);
-            chatMessagesToSend.add(new ChatMessage(nikName, chatPartner, "", "Image/*", Methods.bitmapToBase64(bmp),0));
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void createImageBrowsingRequest() {
-        if (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 22);
-        } else {
-            Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(i, 1);
-        }
     }
 
     private void sendMessage(){
@@ -317,7 +307,6 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 Log.d("LOG_ActivityChat", "no internet connection");
             }
         }
-        sendAttachements();
     }
 
     private void sendAttachements(){
@@ -390,16 +379,63 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             Log.d("LOG_ActivityChat", e.toString());
         }
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            Bitmap bmp = Methods.getBitmap(ActivityChat.this, selectedImage, 1920, 1080);
+            final ChatMessage message = new ChatMessage(nikName, chatPartner, "", "Image/*", Methods.bitmapToBase64(bmp),0);
+            chatMessagesToSend.add(message);
+
+            LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);
+            final View view = inflater.inflate(attachments, layoutAttachments, false);
+            TextView tv = view.findViewById(R.id.TextViev_Attachments);
+            tv.setText(Methods.getFileName(ActivityChat.this, selectedImage));
+            LinearLayout lo = view.findViewById(R.id.ImageView_Attachments);
+            lo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    view.setVisibility(View.GONE);
+                    chatMessagesToSend.remove(message);
+                }
+            });
+            layoutAttachments.addView(view);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void createImageBrowsingRequest() {
+        if (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 22);
+        } else {
+            Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, 1);
+        }
+    }
     private void getLocation(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
             return;
         }
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        chatMessagesToSend.add(new ChatMessage(nikName, chatPartner, "","location/plain", location.getAltitude() + ":" + location.getLatitude() + ":" + location.getLongitude() + ":", 0));
-        //TODO set loction button klickable false
-    }
+        final ChatMessage message = new ChatMessage(nikName, chatPartner, "","location/plain", location.getAltitude() + ":" + location.getLatitude() + ":" + location.getLongitude() + ":", 0);
+        chatMessagesToSend.add(message);
+
+        LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);
+        final View view = inflater.inflate(attachments, layoutAttachments, false);
+        TextView tv = view.findViewById(R.id.TextViev_Attachments);
+        tv.setText("Location: "  + location.getLatitude() + " | " + location.getLongitude());
+        LinearLayout lo = view.findViewById(R.id.ImageView_Attachments);
+        lo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.setVisibility(View.GONE);
+                chatMessagesToSend.remove(message);
+            }
+        });
+        layoutAttachments.addView(view);    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

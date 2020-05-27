@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     android:focusableInTouchMode="true"
-    tools:context="com.example.palaver.ActivityChat"
+    tools:context="de.uni_due.paluno.se.palaver.ActivityChat"
     android:background="@drawable/background"
     tools:ignore="ExtraText">
 
@@ -26,9 +26,20 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/LinearLayout_Attachments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="2dp"
+        android:layout_marginLeft="2dp"
+        android:orientation="vertical">
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/LinearLayout_Attachment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginRight="2dp"
+        android:layout_marginLeft="2dp"
         android:gravity="center"
         android:background="@drawable/attachment"
         android:orientation="horizontal"

@@ -140,7 +140,7 @@ public class Login extends AppCompatActivity {
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
+        cal.add(Calendar.DATE, -7);
         String date =  dateFormat.format(cal.getTime());
 
         ArrayList<String > friends = MainActivity.DB.getFriends(nikName);

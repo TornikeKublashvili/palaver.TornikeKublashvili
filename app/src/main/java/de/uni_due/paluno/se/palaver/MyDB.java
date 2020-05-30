@@ -103,14 +103,22 @@ public class MyDB {
         return  DB.insert("Messages", null , contentValues);
     }
 
+    void markMessageSaved(String myNNFriendsNN, String datetimeAsVarchar){
+        SQLiteDatabase DB = myhelper.getWritableDatabase();
+        DB.execSQL("UPDATE Messages SET FotoSaved=1 WHERE MyNNFriendsNN LIKE '"  + myNNFriendsNN+ "' AND DatetimeAsVarchar LIKE '" + datetimeAsVarchar +"'");
+        logMessages();
+
+        Log.d("LOG_MyDB", myNNFriendsNN + "   " + datetimeAsVarchar);
+
+    }
     ArrayList<ChatMessage> getMessages(String myNNFriendsNN, String datetime){
         SQLiteDatabase DB = myhelper.getWritableDatabase();
-        @SuppressLint("Recycle") Cursor cursor = DB.rawQuery("SELECT Sender, Recipient, MimeType, Data, Datetime, FotoSaved FROM Messages WHERE MyNNFriendsNN LIKE '" +
+        @SuppressLint("Recycle") Cursor cursor = DB.rawQuery("SELECT DatetimeAsVarchar, MyNNFriendsNN, Sender, Recipient, MimeType, Data, Datetime, FotoSaved FROM Messages WHERE MyNNFriendsNN LIKE '" +
                 myNNFriendsNN + "' AND Datetime > '" + datetime + "'" , null);
         ArrayList<ChatMessage> messages = new ArrayList<>();
         while (cursor.moveToNext())
         {
-            messages.add(new ChatMessage(cursor.getString(cursor.getColumnIndex("Sender")), cursor.getString(cursor.getColumnIndex("Recipient")),
+            messages.add(new ChatMessage(cursor.getString(cursor.getColumnIndex("DatetimeAsVarchar")) , cursor.getString(cursor.getColumnIndex("MyNNFriendsNN")),cursor.getString(cursor.getColumnIndex("Sender")), cursor.getString(cursor.getColumnIndex("Recipient")),
                                     cursor.getString(cursor.getColumnIndex("Datetime")), cursor.getString(cursor.getColumnIndex("MimeType")),
                                     cursor.getString(cursor.getColumnIndex("Data")), cursor.getInt(cursor.getColumnIndex("FotoSaved"))));
         }
@@ -190,7 +198,7 @@ public class MyDB {
                     " Sender->" + cursor.getString(cursor.getColumnIndex("Sender")) +
                     " Recipient->" + cursor.getString(cursor.getColumnIndex("Recipient")) +
                     " MimeType->" + cursor.getString(cursor.getColumnIndex("MimeType")) +
-                    " Data->" + cursor.getString(cursor.getColumnIndex("Data")) +
+           //         " Data->" + cursor.getString(cursor.getColumnIndex("Data")) +
                     " Datetime->" +cursor.getString(cursor.getColumnIndex("Datetime"))+
                     " FotoSaved->" +cursor.getString(cursor.getColumnIndex("FotoSaved")));
         }

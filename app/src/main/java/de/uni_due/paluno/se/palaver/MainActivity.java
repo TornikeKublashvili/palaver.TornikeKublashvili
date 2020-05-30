@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     public static MyDB DB;
-    public static String nikName;
+    public static String nikName ;
     public static String password;
     public static String chatPartner;
     public static boolean startTokenService = false;

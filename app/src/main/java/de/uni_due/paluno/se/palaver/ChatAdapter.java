@@ -50,10 +50,17 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                 textViewMessage.setText("Location von" + message.getSender() + "\n" + message.getDate());
                 break;
             case "Image/*":
-                textViewMessage.setText("image" + "\n" + message.getDate());
+                textViewMessage.setText(message.getDate());
                 imageViewMessage.setImageBitmap(Methods.base64ToBitmap(message.getData()));
                 imageViewMessage.setVisibility(View.VISIBLE);
-                textViewMessageDownload.setVisibility(View.VISIBLE);
+
+                if(message.getFotoSaved() == 0){
+                    textViewMessageDownload.setVisibility(View.VISIBLE);
+                }
+                else{
+                    textViewMessageDownload.setVisibility(View.GONE);
+                    imageViewMessage.setAlpha(1.0F);
+                }
                 break;
         }
         return rowView;

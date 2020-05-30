@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -32,6 +33,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -127,8 +129,13 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                             fOut.close();
                             ImageView imageViewMessage = view.findViewById(R.id.ImageView_Message);
                             imageViewMessage.setAlpha(1.0F);
-                            TextView textViewMessageDownload = view.findViewById(R.id.TextView_Message_Download);
-                            textViewMessageDownload.setVisibility(View.GONE);
+                            if(message.getFotoSaved() == 0){
+                                MainActivity.DB.markMessageSaved(message.getMyNNFriendsNN(), message.getDatetimeAsVarchar());
+                                message.setFotoSaved();
+                                TextView textViewMessageDownload = view.findViewById(R.id.TextView_Message_Download);
+                                textViewMessageDownload.setVisibility(View.GONE);
+                            }
+                            //TODO open Foto after click
 
                         } catch (IOException e) {
                             Log.d("LOG_MainActivity", e.toString());
@@ -292,7 +299,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                         JSONObject data = (JSONObject)response.get("Data");
                         String datetime = data.getString("DateTime").substring(0, data.getString("DateTime").indexOf('.')).replace('T',' ');
                         MainActivity.DB.insertMessage(data.getString("DateTime"), MainActivity.nikName+MainActivity.chatPartner, nikName, chatPartner, "text/plain", editTextChatMessage.getText().toString());
-                        chatMessages.add(new ChatMessage(nikName, chatPartner, datetime, "text/plain", editTextChatMessage.getText().toString(),0));
+                        chatMessages.add(new ChatMessage(datetime, nikName+chatPartner, nikName, chatPartner, datetime, "text/plain", editTextChatMessage.getText().toString(),0));
                         chatAdapter.notifyDataSetChanged();
                         listViewChat.setSelection(chatAdapter.getCount()-1);
                         editTextChatMessage.setText("");
@@ -329,7 +336,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                         } else {
                             JSONObject data = (JSONObject)response.get("Data");
                             MainActivity.DB.insertMessage(data.getString("DateTime"), nikName+chatPartner, nikName, chatPartner, chatMessage.getMimetype(), chatMessage.getData());
-                            chatMessages.add(new ChatMessage(nikName, chatPartner, data.getString("DateTime"), chatMessage.getMimetype(), chatMessage.getData(),0));
+                            chatMessages.add(new ChatMessage(data.getString("DateTime"), nikName+chatPartner, nikName, chatPartner, data.getString("DateTime"), chatMessage.getMimetype(), chatMessage.getData(),0));
                             chatAdapter.notifyDataSetChanged();
                             listViewChat.setSelection(chatAdapter.getCount()-1);
                         }
@@ -369,7 +376,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                     String data = jitem.getString("Data");
                     String datetime = jitem.getString("DateTime");
                    if( MainActivity.DB.insertMessage(datetime, MainActivity.nikName+MainActivity.chatPartner, sender, recipient, mimetype, data) > 0){
-                       chatMessages.add(new ChatMessage(sender, recipient, datetime, mimetype, data,0));
+                       chatMessages.add(new ChatMessage(datetime, sender+recipient, sender, recipient, datetime, mimetype, data,0));
                        chatAdapter.notifyDataSetChanged();
                        listViewChat.setSelection(chatAdapter.getCount()-1);
                    }
@@ -382,11 +389,10 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
             Bitmap bmp = Methods.getBitmap(ActivityChat.this, selectedImage, 1920, 1080);
-            final ChatMessage message = new ChatMessage(nikName, chatPartner, "", "Image/*", Methods.bitmapToBase64(bmp),0);
+            final ChatMessage message = new ChatMessage("" , nikName+chatPartner, nikName, chatPartner, "", "Image/*", Methods.bitmapToBase64(bmp),0);
             chatMessagesToSend.add(message);
 
             LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);
@@ -420,7 +426,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             return;
         }
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        final ChatMessage message = new ChatMessage(nikName, chatPartner, "","location/plain", location.getAltitude() + ":" + location.getLatitude() + ":" + location.getLongitude() + ":", 0);
+        final ChatMessage message = new ChatMessage("" , nikName+chatPartner, nikName, chatPartner, "","location/plain", location.getAltitude() + ":" + location.getLatitude() + ":" + location.getLongitude() + ":", 0);
         chatMessagesToSend.add(message);
 
         LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);

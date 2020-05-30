@@ -10,43 +10,52 @@
     android:paddingBottom="1dp"
     tools:ignore="RtlHardcoded">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:background="@drawable/my_message"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <ImageView
+                android:id="@+id/ImageView_Message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitStart"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:padding="10dp"
+                android:visibility="gone"
+                android:contentDescription="@string/todo">
+            </ImageView>
+
+            <TextView
+                android:id="@+id/TextView_Message_Download"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_alignLeft="@+id/ImageView_Message"
+                android:layout_alignRight="@+id/ImageView_Message"
+                android:layout_alignTop="@+id/ImageView_Message"
+                android:layout_alignBottom="@+id/ImageView_Message"
+                android:text="@string/saveFoto"
+                android:visibility="gone">
+            </TextView>
+        </RelativeLayout>
         <TextView
             android:id="@+id/TextView_Message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="5dp"
-            android:paddingHorizontal="5dp"
-            android:layout_marginTop="10dp"
             android:textSize="14dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:text=""
             tools:ignore="HardcodedText,SpUsage" />
-        <ImageView
-            android:id="@+id/ImageView_Message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitStart"
-            android:adjustViewBounds="true"
-            android:alpha="0.5"
-            android:padding="10dp"
-            android:visibility="gone">
-        </ImageView>
-        <TextView
-            android:id="@+id/TextView_Message_Download"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_alignLeft="@+id/ImageView_Message"
-            android:layout_alignRight="@+id/ImageView_Message"
-            android:layout_alignTop="@+id/ImageView_Message"
-            android:layout_alignBottom="@+id/ImageView_Message"
-            android:text="@string/saveFoto"
-            android:visibility="gone">
-        </TextView>
-    </RelativeLayout>
+
+    </LinearLayout>
 </LinearLayout>

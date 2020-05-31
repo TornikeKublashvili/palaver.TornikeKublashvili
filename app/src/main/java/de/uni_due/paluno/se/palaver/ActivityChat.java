@@ -374,8 +374,8 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                     String recipient = jitem.getString("Recipient");
                     String mimetype = jitem.getString("Mimetype");
                     String data = jitem.getString("Data");
-                    String datetime = jitem.getString("DateTime");
-                   if( MainActivity.DB.insertMessage(datetime, MainActivity.nikName+MainActivity.chatPartner, sender, recipient, mimetype, data) > 0){
+                    String datetime = jitem.getString("DateTime").substring(0, jitem.getString("DateTime").indexOf('.')).replace('T',' ');
+                   if( MainActivity.DB.insertMessage(jitem.getString("DateTime"), MainActivity.nikName+MainActivity.chatPartner, sender, recipient, mimetype, data) > 0){
                        chatMessages.add(new ChatMessage(datetime, sender+recipient, sender, recipient, datetime, mimetype, data,0));
                        chatAdapter.notifyDataSetChanged();
                        listViewChat.setSelection(chatAdapter.getCount()-1);

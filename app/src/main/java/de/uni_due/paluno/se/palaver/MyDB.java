@@ -143,7 +143,7 @@ public class MyDB {
 
     String getMinDateFromUnreadMessages(String nikname, String friend){
         SQLiteDatabase DB = myhelper.getWritableDatabase();
-        @SuppressLint("Recycle") Cursor cursor = DB.rawQuery("SELECT ReceiveDate FROM UnreadMessages WHERE NikName LIKE '" + nikname  +"' AND Friend LIKE '" + friend +"'", null);
+        @SuppressLint("Recycle") Cursor cursor = DB.rawQuery("SELECT DATETIME(ReceiveDate, '-1 minutes') AS ReceiveDate  FROM UnreadMessages WHERE NikName LIKE '" + nikname  +"' AND Friend LIKE '" + friend +"'", null);
         while (cursor.moveToNext())
         {
             String s = cursor.getString(cursor.getColumnIndex("ReceiveDate"));

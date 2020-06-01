@@ -29,7 +29,6 @@ public class ContactList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_list);
 
-        MainActivity.startTokenService = true;
         Intent tokenService = new Intent(ContactList.this, TokenService.class);
         startService(tokenService);
 
@@ -126,7 +125,6 @@ public class ContactList extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId()==R.id.Log_Out){
             MainActivity.DB.setLoggedIn(MainActivity.nikName, MainActivity.password, 0);
-            MainActivity.startTokenService = false;
             Intent intent = new Intent(ContactList.this, MainActivity.class);
             startActivity(intent);
             finish();

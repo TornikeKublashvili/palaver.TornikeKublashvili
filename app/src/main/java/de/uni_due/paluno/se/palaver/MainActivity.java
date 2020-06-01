@@ -12,7 +12,6 @@ public class MainActivity extends AppCompatActivity {
     public static String nikName ;
     public static String password;
     public static String chatPartner;
-    public static boolean startTokenService = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -22,7 +22,7 @@
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         tools:ignore="AllowBackup,UnusedAttribute">
-        <receiver
+<!--        <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
@@ -37,6 +37,13 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>-->
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <service

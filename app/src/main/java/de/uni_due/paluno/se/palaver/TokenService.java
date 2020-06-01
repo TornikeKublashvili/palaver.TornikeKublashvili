@@ -18,13 +18,8 @@ public class TokenService extends IntentService{
     protected void onHandleIntent(Intent intent) {
         InstanceID instanceID = InstanceID.getInstance(this);
         try {
-            if(MainActivity.startTokenService) {
-                String token = instanceID.getToken(getString(R.string.tocken_id), GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                sendTokenToServer(token);
-            }
-            else{
-                instanceID.deleteInstanceID();
-            }
+            String token = instanceID.getToken(getString(R.string.tocken_id), GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            sendTokenToServer(token);
         } catch (IOException e) {
             Log.d("LOG_TokenService", e.toString());
         }

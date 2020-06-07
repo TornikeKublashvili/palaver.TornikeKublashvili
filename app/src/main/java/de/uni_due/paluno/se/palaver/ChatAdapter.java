@@ -47,7 +47,7 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                 break;
             case "location/plain":
                 //TODO hardcoded String [Location von] must be defined in strings.xml
-                textViewMessage.setText("Location von" + message.getSender() + "\n" + message.getDate());
+                textViewMessage.setText("Location von " + message.getSender() + "\n" + message.getDate());
                 break;
             case "Image/*":
                 textViewMessage.setText(message.getDate());
@@ -61,6 +61,10 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                     textViewMessageDownload.setVisibility(View.GONE);
                     imageViewMessage.setAlpha(1.0F);
                 }
+                break;
+            case "Video/*":
+                //TODO hardcoded String [Video von] must be defined in strings.xml
+                textViewMessage.setText("Video von " + message.getSender() + "\n" + message.getDate());
                 break;
         }
         return rowView;

@@ -198,7 +198,7 @@ public class MyDB {
                     " Sender->" + cursor.getString(cursor.getColumnIndex("Sender")) +
                     " Recipient->" + cursor.getString(cursor.getColumnIndex("Recipient")) +
                     " MimeType->" + cursor.getString(cursor.getColumnIndex("MimeType")) +
-           //         " Data->" + cursor.getString(cursor.getColumnIndex("Data")) +
+                    " Data->" + cursor.getString(cursor.getColumnIndex("Data")) +
                     " Datetime->" +cursor.getString(cursor.getColumnIndex("Datetime"))+
                     " FotoSaved->" +cursor.getString(cursor.getColumnIndex("FotoSaved")));
         }

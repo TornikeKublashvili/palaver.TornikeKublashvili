@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -142,6 +143,31 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                         }
                     }
                 }
+
+                if (message.getMimetype().equals("Video/*")) {
+                    boolean hasPermission = (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+                    if (!hasPermission) {
+                        ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 112);
+                    } else {
+                        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Palaver/Palaver Videos";
+                        File storageDir = new File(path);
+                        if (!storageDir.exists() && !storageDir.mkdirs()) {
+                            Log.d("LOG_ActivityChat", "create directory failed -> Palaver/Palaver Videos");
+                        }
+                        final File video = new File(storageDir, message.getSender() + "_" + message.getDate() + ".mp4");
+                        FileOutputStream fOut;
+                        String outs = video.getAbsolutePath();
+                        try {
+                            FileOutputStream out = new FileOutputStream(outs);
+                            out.write(Base64.decode(message.getData(), Base64.DEFAULT));
+                            Log.e("LOG_MainActivity", message.getData());
+                            out.close();
+                            //TODO open Foto after click
+                        } catch (Exception e) {
+                            Log.e("LOG_MainActivity", e.toString());
+                        }
+                    }
+                }
             }
         });
 
@@ -215,9 +241,10 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         ImageButton imageButtonChooseVideo = findViewById(R.id.ImageButton_Choose_Video);
         imageButtonChooseVideo.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onClick(View v) {
-                //TODO
+                createVideoBrowsingRequest();
             }
         });
 
@@ -335,8 +362,9 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                             Log.d("LOG_ActivityChat", response.toString());
                         } else {
                             JSONObject data = (JSONObject)response.get("Data");
+                            String datetime = data.getString("DateTime").substring(0, data.getString("DateTime").indexOf('.')).replace('T',' ');
                             MainActivity.DB.insertMessage(data.getString("DateTime"), nikName+chatPartner, nikName, chatPartner, chatMessage.getMimetype(), chatMessage.getData());
-                            chatMessages.add(new ChatMessage(data.getString("DateTime"), nikName+chatPartner, nikName, chatPartner, data.getString("DateTime"), chatMessage.getMimetype(), chatMessage.getData(),0));
+                            chatMessages.add(new ChatMessage(data.getString("DateTime"), nikName+chatPartner, nikName, chatPartner, datetime, chatMessage.getMimetype(), chatMessage.getData(),0));
                             chatAdapter.notifyDataSetChanged();
                             listViewChat.setSelection(chatAdapter.getCount()-1);
                         }
@@ -386,6 +414,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             Log.d("LOG_ActivityChat", e.toString());
         }
     }
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -409,6 +438,30 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             });
             layoutAttachments.addView(view);
         }
+        else if (requestCode == 2 && resultCode == RESULT_OK && null != data) {
+            Uri selectedVideo = data.getData();
+            final ChatMessage message;
+            try {
+                message = new ChatMessage("" , nikName+chatPartner, nikName, chatPartner, "", "Video/*", Methods.getBase64FromUri(ActivityChat.this, selectedVideo),0);
+                chatMessagesToSend.add(message);
+                LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);
+                final View view = inflater.inflate(attachments, layoutAttachments, false);
+                TextView tv = view.findViewById(R.id.TextViev_Attachments);
+                tv.setText(Methods.getFileName(ActivityChat.this, selectedVideo));
+                LinearLayout lo = view.findViewById(R.id.ImageView_Attachments);
+                lo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        view.setVisibility(View.GONE);
+                        chatMessagesToSend.remove(message);
+                    }
+                });
+                layoutAttachments.addView(view);
+            } catch (IOException e) {
+                Log.d("LOG_ActivityChat", e.toString());
+            }
+        }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -420,6 +473,18 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             startActivityForResult(i, 1);
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void createVideoBrowsingRequest() {
+        if (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 22);
+        } else {
+            Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, 2);
+            MainActivity.DB.logMessages();
+        }
+    }
+
     private void getLocation(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
@@ -441,7 +506,8 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 chatMessagesToSend.remove(message);
             }
         });
-        layoutAttachments.addView(view);    }
+        layoutAttachments.addView(view);
+    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

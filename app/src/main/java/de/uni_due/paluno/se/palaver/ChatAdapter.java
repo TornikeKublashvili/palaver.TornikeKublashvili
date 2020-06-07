@@ -63,7 +63,6 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage>{
                 }
                 break;
             case "Video/*":
-                //TODO hardcoded String [Video von] must be defined in strings.xml
                 textViewMessage.setText("Video von " + message.getSender() + "\n" + message.getDate());
                 break;
             default:

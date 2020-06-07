@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
@@ -33,6 +34,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -79,6 +81,10 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(activity_chat);
 
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(LocationServices.API)
@@ -93,7 +99,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
         password = MainActivity.password;
         chatPartner = MainActivity.chatPartner;
 
-        ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
         actionBar.setTitle(chatPartner);
 
@@ -139,7 +145,14 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                                 TextView textViewMessageDownload = view.findViewById(R.id.TextView_Message_Download);
                                 textViewMessageDownload.setVisibility(View.GONE);
                             }
-                            //TODO open Foto after click
+
+                            Intent install = new Intent(Intent.ACTION_VIEW);
+                            install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            install.setDataAndType(Uri.fromFile(foto), "*/*");
+                            Uri apkURI = FileProvider.getUriForFile(ActivityChat.this, ActivityChat.this.getApplicationContext().getPackageName() + ".provider", foto);
+                            install.setDataAndType(apkURI, "image/*");
+                            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            ActivityChat.this.startActivity(install);
 
                         } catch (IOException e) {
                             Log.d("LOG_MainActivity", e.toString());
@@ -165,7 +178,15 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                             out.write(Base64.decode(message.getData(), Base64.DEFAULT));
                             Log.e("LOG_MainActivity", message.getData());
                             out.close();
-                            //TODO open Video after click
+
+                            Intent install = new Intent(Intent.ACTION_VIEW);
+                            install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            install.setDataAndType(Uri.fromFile(video), "*/*");
+                            Uri apkURI = FileProvider.getUriForFile(ActivityChat.this, ActivityChat.this.getApplicationContext().getPackageName() + ".provider", video);
+                            install.setDataAndType(apkURI, "video/*");
+                            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            ActivityChat.this.startActivity(install);
+
                         } catch (Exception e) {
                             Log.e("LOG_MainActivity", e.toString());
                         }
@@ -190,7 +211,15 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                             out.write(Base64.decode(message.getData(), Base64.DEFAULT));
                             Log.e("LOG_MainActivity", message.getData());
                             out.close();
-                            //TODO open Doc after click
+
+                            Intent install = new Intent(Intent.ACTION_VIEW);
+                            install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            install.setDataAndType(Uri.fromFile(doc), "*/*");
+                            Uri apkURI = FileProvider.getUriForFile(ActivityChat.this, ActivityChat.this.getApplicationContext().getPackageName() + ".provider", doc);
+                            install.setDataAndType(apkURI, "*/*");
+                            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            ActivityChat.this.startActivity(install);
+
                         } catch (Exception e) {
                             Log.e("LOG_MainActivity", e.toString());
                         }

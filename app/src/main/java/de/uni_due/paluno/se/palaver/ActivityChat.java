@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
@@ -34,7 +33,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -51,10 +49,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static de.uni_due.paluno.se.palaver.R.layout.*;
+import static de.uni_due.paluno.se.palaver.R.layout.activity_chat;
+import static de.uni_due.paluno.se.palaver.R.layout.attachments;
 
 public class ActivityChat extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -103,13 +103,16 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 ChatMessage message = (ChatMessage) adapterView.getItemAtPosition(i);
+
                 if (message.getMimetype().equals("location/plain")) {
                     String[] params = message.getData().split(":");
                     Uri uri = Uri.parse("geo:0,0?q=" + Float.parseFloat(params[1]) + "," + Float.parseFloat(params[2]) + "(Google)");
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     intent.setPackage("com.google.android.apps.maps");
                     startActivity(intent);
-                } else if (message.getMimetype().equals("Image/*")) {
+                }
+
+                else if (message.getMimetype().equals("Image/*")) {
                     boolean hasPermission = (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
                     if (!hasPermission) {
                         ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 112);
@@ -144,7 +147,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                     }
                 }
 
-                if (message.getMimetype().equals("Video/*")) {
+                else if (message.getMimetype().equals("Video/*")) {
                     boolean hasPermission = (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
                     if (!hasPermission) {
                         ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 112);
@@ -162,7 +165,32 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                             out.write(Base64.decode(message.getData(), Base64.DEFAULT));
                             Log.e("LOG_MainActivity", message.getData());
                             out.close();
-                            //TODO open Foto after click
+                            //TODO open Video after click
+                        } catch (Exception e) {
+                            Log.e("LOG_MainActivity", e.toString());
+                        }
+                    }
+                }
+
+                else  {
+                    boolean hasPermission = (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+                    if (!hasPermission) {
+                        ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 112);
+                    } else {
+                        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Palaver/Palaver Dokuments";
+                        File storageDir = new File(path);
+                        if (!storageDir.exists() && !storageDir.mkdirs()) {
+                            Log.d("LOG_ActivityChat", "create directory failed -> Palaver/Palaver Dokuments");
+                        }
+                        final File doc = new File(storageDir, message.getMimetype());
+                        FileOutputStream fOut;
+                        String outs = doc.getAbsolutePath();
+                        try {
+                            FileOutputStream out = new FileOutputStream(outs);
+                            out.write(Base64.decode(message.getData(), Base64.DEFAULT));
+                            Log.e("LOG_MainActivity", message.getData());
+                            out.close();
+                            //TODO open Doc after click
                         } catch (Exception e) {
                             Log.e("LOG_MainActivity", e.toString());
                         }
@@ -250,8 +278,10 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         ImageButton imageButtonChooseDoc = findViewById(R.id.ImageButton_Choose_Doc);
         imageButtonChooseDoc.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onClick(View v) {
+                createDocBrowsingRequest();
                 //TODO
             }
         });
@@ -427,6 +457,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);
             final View view = inflater.inflate(attachments, layoutAttachments, false);
             TextView tv = view.findViewById(R.id.TextViev_Attachments);
+            assert selectedImage != null;
             tv.setText(Methods.getFileName(ActivityChat.this, selectedImage));
             LinearLayout lo = view.findViewById(R.id.ImageView_Attachments);
             lo.setOnClickListener(new View.OnClickListener() {
@@ -447,6 +478,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);
                 final View view = inflater.inflate(attachments, layoutAttachments, false);
                 TextView tv = view.findViewById(R.id.TextViev_Attachments);
+                assert selectedVideo != null;
                 tv.setText(Methods.getFileName(ActivityChat.this, selectedVideo));
                 LinearLayout lo = view.findViewById(R.id.ImageView_Attachments);
                 lo.setOnClickListener(new View.OnClickListener() {
@@ -461,7 +493,34 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
                 Log.d("LOG_ActivityChat", e.toString());
             }
         }
+        else if (requestCode == 3 && resultCode == RESULT_OK && null != data) {
+            Uri selectedDocument = data.getData();
 
+            assert selectedDocument != null;
+            Log.d("LOG_ActivityChat", Objects.requireNonNull(selectedDocument.getPath()));
+            final ChatMessage message;
+            try {
+                Log.d("LOG_ActivityChat", Methods.getBase64FromUri(ActivityChat.this, selectedDocument));
+
+                message = new ChatMessage("" , nikName+chatPartner, nikName, chatPartner, "", Methods.getFileName(ActivityChat.this, selectedDocument), Methods.getBase64FromUri(ActivityChat.this, selectedDocument),0);
+                chatMessagesToSend.add(message);
+                LayoutInflater inflater = LayoutInflater.from(ActivityChat.this);
+                final View view = inflater.inflate(attachments, layoutAttachments, false);
+                TextView tv = view.findViewById(R.id.TextViev_Attachments);
+                tv.setText(Methods.getFileName(ActivityChat.this, selectedDocument));
+                LinearLayout lo = view.findViewById(R.id.ImageView_Attachments);
+                lo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        view.setVisibility(View.GONE);
+                        chatMessagesToSend.remove(message);
+                    }
+                });
+                layoutAttachments.addView(view);
+            } catch (IOException e) {
+                Log.d("LOG_ActivityChat", e.toString());
+            }
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -481,10 +540,26 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
         } else {
             Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(i, 2);
-            MainActivity.DB.logMessages();
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void createDocBrowsingRequest() {
+        if (ContextCompat.checkSelfPermission(ActivityChat.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ActivityChat.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 22);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            String[] mimetypes = {"text/*", "application/*"};
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+            }
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(Intent.createChooser(intent, "Select Dokument"), 3);
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
     private void getLocation(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);

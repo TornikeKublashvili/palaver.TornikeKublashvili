@@ -114,20 +114,24 @@ class Methods {
     }
 
     public static String getFileName(Context ctx, Uri uri) {
-        ContentResolver cr = ctx.getContentResolver();
-
-        String fileName = "null";
-
-        Cursor cursor = cr.query(uri,
-                new String[] { android.provider.MediaStore.MediaColumns.DATA },
-                null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            fileName = cursor.getString(0);
-            cursor.close();
-        } else {
-            fileName = uri.getPath();
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = ctx.getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
         }
-        return fileName.substring(fileName.lastIndexOf('/')+1);
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 }

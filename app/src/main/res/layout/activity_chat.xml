@@ -17,12 +17,17 @@
         android:layout_weight="2"
         android:orientation="horizontal"
         android:stackFromBottom="true">
-
-        <ListView
-            android:id="@+id/ListViev_Chat"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swipe_refresh_layout_activity_main"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:stackFromBottom="true"/>
+            android:layout_height="match_parent">
+            <ListView
+                android:id="@+id/ListViev_Chat"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:stackFromBottom="true"/>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 
     <LinearLayout

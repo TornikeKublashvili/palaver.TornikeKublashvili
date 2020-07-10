@@ -90,37 +90,51 @@ public class MyDB {
     }
 
     long insertMessage(String datetime, String myNNFriendsNN, String sender, String recipient, String momeType, String data) {
-        SQLiteDatabase DB = myhelper.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("DatetimeAsVarchar", datetime);
-        contentValues.put("MyNNFriendsNN", myNNFriendsNN);
-        contentValues.put("Sender", sender);
-        contentValues.put("Recipient", recipient);
-        contentValues.put("MimeType", momeType);
-        contentValues.put("Data", data);
-        contentValues.put("Datetime", datetime.substring(0,datetime.indexOf('.')).replace('T', ' '));
-        contentValues.put("FotoSaved", 0);
-        return  DB.insert("Messages", null , contentValues);
+        try{
+            SQLiteDatabase DB = myhelper.getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("DatetimeAsVarchar", datetime);
+            contentValues.put("MyNNFriendsNN", myNNFriendsNN);
+            contentValues.put("Sender", sender);
+            contentValues.put("Recipient", recipient);
+            contentValues.put("MimeType", momeType);
+            contentValues.put("Data", data);
+            contentValues.put("Datetime", datetime.substring(0,datetime.indexOf('.')).replace('T', ' '));
+            contentValues.put("FotoSaved", 0);
+            return  DB.insert("Messages", null , contentValues);
+        }catch (Exception e){
+            return 0;
+        }
     }
 
     void markMessageSaved(String myNNFriendsNN, String datetimeAsVarchar){
         SQLiteDatabase DB = myhelper.getWritableDatabase();
         DB.execSQL("UPDATE Messages SET FotoSaved=1 WHERE MyNNFriendsNN LIKE '"  + myNNFriendsNN+ "' AND DatetimeAsVarchar LIKE '" + datetimeAsVarchar +"'");
-        logMessages();
-
         Log.d("LOG_MyDB", myNNFriendsNN + "   " + datetimeAsVarchar);
 
     }
     ArrayList<ChatMessage> getMessages(String myNNFriendsNN, String datetime){
         SQLiteDatabase DB = myhelper.getWritableDatabase();
         @SuppressLint("Recycle") Cursor cursor = DB.rawQuery("SELECT DatetimeAsVarchar, MyNNFriendsNN, Sender, Recipient, MimeType, Data, Datetime, FotoSaved FROM Messages WHERE MyNNFriendsNN LIKE '" +
-                myNNFriendsNN + "' AND Datetime > '" + datetime + "'" , null);
+                myNNFriendsNN + "' AND Datetime > '" + datetime + "' Order by Datetime" , null);
         ArrayList<ChatMessage> messages = new ArrayList<>();
-        while (cursor.moveToNext())
-        {
-            messages.add(new ChatMessage(cursor.getString(cursor.getColumnIndex("DatetimeAsVarchar")) , cursor.getString(cursor.getColumnIndex("MyNNFriendsNN")),cursor.getString(cursor.getColumnIndex("Sender")), cursor.getString(cursor.getColumnIndex("Recipient")),
-                                    cursor.getString(cursor.getColumnIndex("Datetime")), cursor.getString(cursor.getColumnIndex("MimeType")),
-                                    cursor.getString(cursor.getColumnIndex("Data")), cursor.getInt(cursor.getColumnIndex("FotoSaved"))));
+        try {
+            while (cursor.moveToNext()) {
+                try {
+                    messages.add(new ChatMessage(cursor.getString(cursor.getColumnIndex("DatetimeAsVarchar")),
+                            cursor.getString(cursor.getColumnIndex("MyNNFriendsNN")),
+                            cursor.getString(cursor.getColumnIndex("Sender")),
+                            cursor.getString(cursor.getColumnIndex("Recipient")),
+                            cursor.getString(cursor.getColumnIndex("Datetime")),
+                            cursor.getString(cursor.getColumnIndex("MimeType")),
+                            cursor.getString(cursor.getColumnIndex("Data")),
+                            cursor.getInt(cursor.getColumnIndex("FotoSaved"))));
+                }catch (Exception e){
+                    Log.d("LOG_MyDB", "getMessages" + "   " + e.toString());
+                }
+            }
+        }catch (Exception e){
+            Log.d("LOG_MyDB", "getMessages" + "   " + e.toString());
         }
         return messages;
     }

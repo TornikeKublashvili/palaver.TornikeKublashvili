@@ -35,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -320,7 +321,7 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -7);
+        cal.add(Calendar.DATE, -365);
         String date =  dateFormat.format(cal.getTime());
 
         ArrayList<ChatMessage> messages = MainActivity.DB.getMessages(MainActivity.nikName + MainActivity.chatPartner, date);
@@ -330,6 +331,19 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
 
         layoutAttachments = findViewById(R.id.LinearLayout_Attachments);
 
+        final SwipeRefreshLayout mSwipeRefreshLayout =findViewById(R.id.swipe_refresh_layout_activity_main);
+
+        mSwipeRefreshLayout.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DATE, -365);
+                String date = dateFormat.format(cal.getTime());
+                insertFullChatHistoriIntoDB(date);
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
     @Override
     protected void onStart() {
@@ -473,13 +487,47 @@ public class ActivityChat extends AppCompatActivity implements GoogleApiClient.C
             Log.d("LOG_ActivityChat", e.toString());
         }
     }
+    private void insertFullChatHistoriIntoDB(String fromDate) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("Username", nikName);
+            json.put("Password", password);
+            json.put("Recipient", chatPartner);
+            json.put("Offset", fromDate);
+            JSONObject response = new NetworkHelper().execute("api/message/getoffset", json.toString()).get();
+
+            if (response.getInt("MsgType") == 0) {
+                Info.show(ActivityChat.this, response.getString("Info"), Info.Color.Red);
+                Log.d("LOG_ActivityChat", response.toString());
+            } else {
+                JSONArray jarray = response.getJSONArray("Data");
+                JSONObject jitem;
+                chatMessages.clear();
+                for (int i = 0; i < jarray.length(); i++) {
+                    jitem = jarray.getJSONObject(i);
+                    String sender = jitem.getString("Sender");
+                    String recipient = jitem.getString("Recipient");
+                    String mimetype = jitem.getString("Mimetype");
+                    String data = jitem.getString("Data");
+                    MainActivity.DB.insertMessage(jitem.getString("DateTime"), MainActivity.nikName+MainActivity.chatPartner, sender, recipient, mimetype, data);
+                }
+                int x = chatAdapter.getCount();
+                ArrayList<ChatMessage> messages = MainActivity.DB.getMessages(MainActivity.nikName + MainActivity.chatPartner, fromDate);
+                chatMessages.clear();
+                chatMessages.addAll(messages);
+                listViewChat.setSelection(chatAdapter.getCount() - x);
+            }
+        } catch (Exception e) {
+            Log.d("aaaaaaa", e.toString());
+        }
+    }
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-            Bitmap bmp = Methods.getBitmap(ActivityChat.this, selectedImage, 1920, 1080);
+            Bitmap bmp = Methods.getBitmap(ActivityChat.this, selectedImage, 240, 135);
             final ChatMessage message = new ChatMessage("" , nikName+chatPartner, nikName, chatPartner, "", "Image/*", Methods.bitmapToBase64(bmp),0);
             chatMessagesToSend.add(message);
 
